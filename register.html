@@ -55,6 +55,7 @@
           </div>
 
           <p class="status-message" id="status-message"></p>
+          <p class="edit-disclaimer">✏️ Essas informações podem ser alteradas a qualquer momento pelo menu de perfil.</p>
         </div>
       </div>
 
@@ -67,9 +68,11 @@
 
         <!-- Buttons -->
         <div class="buttons-section">
-          <button class="register-button" id="register-btn">CONFIRMAR REGISTRO</button>
-          <button class="logout-button" id="logout-btn" style="display:none;">LOGOUT</button>
+          <button class="register-button" id="register-btn" disabled>CONFIRMAR REGISTRO</button>
+          <button class="logout-button" id="logout-btn" style="display:none;">DELETAR PERFIL</button>
         </div>
+        <!-- Disclaimer -->
+        <p class="storage-disclaimer">⚠ Os dados do seu perfil são salvos no <strong>localStorage</strong> do navegador. Limpar os dados do site ou usar outro navegador/dispositivo apagará seu progresso.</p>
       </div>
     </div>
 
@@ -79,6 +82,18 @@
       <div class="pokedex-action-buttons">
         <button class="pokedex-action-button">B</button>
         <button class="pokedex-action-button">A</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Profile Modal -->
+  <div class="modal-overlay" id="delete-modal" style="display:none;">
+    <div class="modal-box">
+      <h3 class="modal-title">⚠ DELETAR PERFIL</h3>
+      <p class="modal-text">Tem certeza que deseja apagar seus dados? Depois disso não tem mais como recuperá-los.</p>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="modal-cancel-btn">CANCELAR</button>
+        <button class="modal-btn modal-btn-confirm" id="modal-confirm-btn">DELETAR</button>
       </div>
     </div>
   </div>

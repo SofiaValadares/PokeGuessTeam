@@ -1,6 +1,8 @@
 // Script extraído de index.html
 
 let currentSelectedSlot = null;
+let draggedSlotIndex = null;
+let renderPokemonDropdown = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!UserManager.isPlayerRegistered()) {
@@ -10,21 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('welcome-message').textContent = player.nickname;
     document.getElementById('main-title').textContent = `TREINADOR ${player.nickname.toUpperCase()}`;
     document.getElementById('player-details').textContent = `Nível ${player.level} | XP: ${player.experience}`;
-    const statsDisplay = document.getElementById('stats-display');
-    statsDisplay.innerHTML = `
-      <span>🏆 Vitórias: ${player.matchesWon || 0}</span>
-      <span>⭐ Nível: ${player.level}</span>
-      <span>✨ XP: ${player.experience}</span>
-      <span>🎯 Time: ${(player.team || []).length}/6</span>
-    `;
-    statsDisplay.style.display = 'grid';
+    refreshPlayerStats();
     const avatarContainer = document.getElementById('avatar-container');
     const playerAvatar = document.getElementById('player-avatar');
     playerAvatar.src = `assets/players/${player.avatar}`;
-    avatarContainer.style.display = 'block';
+    avatarContainer.style.display = 'flex';
     const teamSection = document.getElementById('team-section');
     teamSection.style.display = 'block';
     setupPokemonSearch();
+    setupSelectorButtons();
+    window.addEventListener('resize', adjustPokemonDropdownHeight);
+    requestAnimationFrame(adjustPokemonDropdownHeight);
     loadTeamDisplay();
     const profileButtons = document.getElementById('profile-buttons');
     profileButtons.style.display = 'flex';
@@ -36,8 +34,30 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.team-slot').forEach(slot => {
       slot.addEventListener('click', selectTeamSlot);
     });
+    setupTeamDragAndDrop();
   }
 });
+
+function setupSelectorButtons() {
+  document.getElementById('random-team-btn').addEventListener('click', () => {
+    const all = getAllPokemon();
+    const shuffled = [...all].sort(() => Math.random() - 0.5);
+    const randomTeam = shuffled.slice(0, 6);
+    UserManager.saveTeam(randomTeam);
+    loadTeamDisplay();
+    updatePlayButton();
+    refreshPlayerStats();
+    if (renderPokemonDropdown) renderPokemonDropdown();
+  });
+
+  document.getElementById('clear-team-btn').addEventListener('click', () => {
+    UserManager.saveTeam([]);
+    loadTeamDisplay();
+    updatePlayButton();
+    refreshPlayerStats();
+    if (renderPokemonDropdown) renderPokemonDropdown();
+  });
+}
 
 function setupPokemonSearch() {
   const searchInput = document.getElementById('pokemon-search');
@@ -47,7 +67,10 @@ function setupPokemonSearch() {
     const isFull = team.length >= 6;
     searchInput.disabled = isFull;
     dropdown.innerHTML = '';
-    if (isFull) return;
+    if (isFull) {
+      adjustPokemonDropdownHeight();
+      return;
+    }
     const allPokemon = getAllPokemon();
     const searchTerm = searchInput.value.trim().toLowerCase();
     const filtered = allPokemon.filter(p => p.name.toLowerCase().includes(searchTerm));
@@ -65,13 +88,69 @@ function setupPokemonSearch() {
           renderDropdown();
           loadTeamDisplay();
           updatePlayButton();
+          refreshPlayerStats();
         }
       };
       dropdown.appendChild(item);
     });
+    adjustPokemonDropdownHeight();
   }
+  renderPokemonDropdown = renderDropdown;
   searchInput.addEventListener('input', renderDropdown);
   renderDropdown();
+}
+
+function refreshPlayerStats() {
+  const player = UserManager.getPlayerData();
+  const statsDisplay = document.getElementById('stats-display');
+
+  statsDisplay.innerHTML = `
+    <span>🏆 Vitórias: ${player.matchesWon || 0}</span>
+    <span>⭐ Nível: ${player.level}</span>
+    <span>✨ XP: ${player.experience}</span>
+    <span>🎯 Time: ${(player.team || []).length}/6</span>
+  `;
+  statsDisplay.style.display = 'grid';
+}
+
+function adjustPokemonDropdownHeight() {
+  const selector = document.getElementById('pokemon-selector');
+  const searchInput = document.getElementById('pokemon-search');
+  const buttons = selector?.querySelector('.selector-buttons');
+  const dropdown = document.getElementById('pokemon-search-dropdown');
+
+  if (!selector || !dropdown) {
+    return;
+  }
+
+  const selectorHeight = selector.clientHeight;
+  if (selectorHeight <= 0) {
+    return;
+  }
+
+  const selectorStyles = window.getComputedStyle(selector);
+  const inputStyles = searchInput ? window.getComputedStyle(searchInput) : null;
+  const buttonsStyles = buttons ? window.getComputedStyle(buttons) : null;
+  const dropdownStyles = window.getComputedStyle(dropdown);
+
+  let availableHeight = selectorHeight;
+  availableHeight -= (parseFloat(selectorStyles.paddingTop) || 0) + (parseFloat(selectorStyles.paddingBottom) || 0);
+
+  if (searchInput) {
+    availableHeight -= searchInput.offsetHeight;
+    availableHeight -= parseFloat(inputStyles?.marginBottom || '0');
+  }
+
+  if (buttons) {
+    availableHeight -= buttons.offsetHeight;
+    availableHeight -= parseFloat(buttonsStyles?.marginTop || '0');
+    availableHeight -= parseFloat(buttonsStyles?.marginBottom || '0');
+  }
+
+  availableHeight -= parseFloat(dropdownStyles.marginTop || '0');
+
+  const finalHeight = Math.max(availableHeight, 120);
+  dropdown.style.height = `${finalHeight}px`;
 }
 
 function selectTeamSlot(e) {
@@ -89,6 +168,7 @@ function loadTeamDisplay() {
   slots.forEach((slot, index) => {
     if (team[index]) {
       const pokemon = team[index];
+      slot.setAttribute('draggable', 'true');
       slot.innerHTML = `
         <div class="team-slot-pokemon">
           <img src="${pokemon.sprite}" alt="${pokemon.name}" onerror="this.src='${pokemon.sprite}'">
@@ -99,10 +179,12 @@ function loadTeamDisplay() {
       slot.classList.add('filled');
       slot.classList.remove('empty');
     } else {
+      slot.setAttribute('draggable', 'false');
       slot.innerHTML = '';
       slot.classList.remove('filled');
       slot.classList.add('empty');
     }
+    slot.classList.remove('dragging', 'drag-over');
   });
   document.querySelectorAll('.remove-pokemon-btn').forEach(btn => {
     btn.onclick = (e) => {
@@ -113,8 +195,93 @@ function loadTeamDisplay() {
       UserManager.saveTeam(team);
       loadTeamDisplay();
       updatePlayButton();
+      refreshPlayerStats();
+      if (renderPokemonDropdown) {
+        renderPokemonDropdown();
+      }
     };
   });
+}
+
+function setupTeamDragAndDrop() {
+  const slots = document.querySelectorAll('.team-slot');
+
+  slots.forEach(slot => {
+    slot.addEventListener('dragstart', handleSlotDragStart);
+    slot.addEventListener('dragover', handleSlotDragOver);
+    slot.addEventListener('dragleave', handleSlotDragLeave);
+    slot.addEventListener('drop', handleSlotDrop);
+    slot.addEventListener('dragend', handleSlotDragEnd);
+  });
+}
+
+function handleSlotDragStart(event) {
+  const slot = event.currentTarget;
+  if (!slot.classList.contains('filled')) {
+    event.preventDefault();
+    return;
+  }
+
+  draggedSlotIndex = Number.parseInt(slot.dataset.index, 10);
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', String(draggedSlotIndex));
+  slot.classList.add('dragging');
+}
+
+function handleSlotDragOver(event) {
+  if (draggedSlotIndex === null) {
+    return;
+  }
+
+  event.preventDefault();
+  const slot = event.currentTarget;
+  const targetIndex = Number.parseInt(slot.dataset.index, 10);
+
+  slot.classList.toggle('drag-over', targetIndex !== draggedSlotIndex);
+}
+
+function handleSlotDragLeave(event) {
+  event.currentTarget.classList.remove('drag-over');
+}
+
+function handleSlotDrop(event) {
+  event.preventDefault();
+
+  const targetSlot = event.currentTarget;
+  const targetIndex = Number.parseInt(targetSlot.dataset.index, 10);
+
+  targetSlot.classList.remove('drag-over');
+
+  if (draggedSlotIndex === null || draggedSlotIndex === targetIndex) {
+    return;
+  }
+
+  reorderTeam(draggedSlotIndex, targetIndex);
+}
+
+function handleSlotDragEnd(event) {
+  event.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.team-slot.drag-over').forEach(slot => slot.classList.remove('drag-over'));
+  draggedSlotIndex = null;
+}
+
+function reorderTeam(fromIndex, toIndex) {
+  const team = UserManager.getTeam();
+
+  if (!team[fromIndex]) {
+    return;
+  }
+
+  const [movedPokemon] = team.splice(fromIndex, 1);
+  team.splice(toIndex, 0, movedPokemon);
+
+  UserManager.saveTeam(team);
+  loadTeamDisplay();
+  updatePlayButton();
+  refreshPlayerStats();
+  if (renderPokemonDropdown) {
+    renderPokemonDropdown();
+  }
 }
 
 function updatePlayButton() {

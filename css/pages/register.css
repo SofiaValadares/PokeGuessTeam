@@ -15,6 +15,8 @@ body.register-page {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    height: 100%;
+    min-height: 0;
 }
 
 .registration-form h2 {
@@ -66,6 +68,8 @@ body.register-page {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    flex: 1;
+    min-height: 0;
 }
 
 .avatar-selection label {
@@ -80,6 +84,9 @@ body.register-page {
     display: flex;
     gap: 10px;
     justify-content: center;
+    align-items: stretch;
+    flex: 1;
+    min-height: 0;
 }
 
 .avatar-button {
@@ -91,11 +98,13 @@ body.register-page {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     flex: 1;
-    max-width: 100px;
+    max-width: none;
+    min-height: 0;
 }
 
 .avatar-button:hover {
@@ -104,10 +113,13 @@ body.register-page {
 }
 
 .avatar-button img {
-    width: 60px;
-    height: 60px;
+    width: 100%;
+    height: 100%;
+    max-width: 14vh;
+    max-height: 14vh;
     image-rendering: pixelated;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    object-fit: contain;
 }
 
 .avatar-button span {
@@ -221,6 +233,113 @@ body.register-page {
 
 .logout-button:active {
     transform: translateY(0);
+}
+
+.edit-disclaimer {
+    font-family: 'Lexend', sans-serif;
+    font-size: 9px;
+    color: #aaaaaa;
+    text-align: center;
+    margin: 2px 0 0;
+    line-height: 1.4;
+}
+
+/* ====== STORAGE DISCLAIMER ====== */
+.storage-disclaimer {
+    font-family: 'Lexend', sans-serif;
+    font-size: 9px;
+    color: #ffffff;
+    text-align: center;
+    margin: 0;
+    padding: 4px 2px 0;
+    line-height: 1.4;
+}
+
+.storage-disclaimer strong {
+    color: #ffffff;
+}
+
+/* ====== DELETE MODAL ====== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.modal-box {
+    background: linear-gradient(135deg, #001530 0%, #002550 100%);
+    border: 2px solid #ff6464;
+    border-radius: 10px;
+    padding: 24px;
+    max-width: 340px;
+    width: 90%;
+    box-shadow: 0 0 30px rgba(255, 100, 100, 0.4), 0 10px 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modal-title {
+    font-family: 'Pixelify Sans', sans-serif;
+    color: #ff6464;
+    font-size: 16px;
+    text-align: center;
+    margin: 0;
+    text-shadow: 0 0 8px rgba(255, 100, 100, 0.5);
+}
+
+.modal-text {
+    font-family: 'Lexend', sans-serif;
+    color: #cccccc;
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 10px;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid;
+}
+
+.modal-btn-cancel {
+    background: rgba(120, 200, 240, 0.15);
+    border-color: #78C8F0;
+    color: #78C8F0;
+}
+
+.modal-btn-cancel:hover {
+    background: rgba(120, 200, 240, 0.3);
+    box-shadow: 0 0 10px rgba(120, 200, 240, 0.4);
+}
+
+.modal-btn-confirm {
+    background: linear-gradient(135deg, #cc2200 0%, #881100 100%);
+    border-color: #ff6464;
+    color: #ffffff;
+}
+
+.modal-btn-confirm:hover {
+    background: linear-gradient(135deg, #ff2200 0%, #aa1100 100%);
+    box-shadow: 0 0 12px rgba(255, 100, 100, 0.5);
 }
 
 /* ====== STATUS MESSAGE ====== */

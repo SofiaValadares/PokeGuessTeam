@@ -51,14 +51,27 @@
       <!-- Player Info Section (Right Screen) -->
       <div class="pokedex-screen-right">
         <p class="welcome-text" id="main-title">POKéDEX</p>
-        <div class="avatar-display" id="avatar-container" style="display:none;">
-          <img id="player-avatar" src="" alt="Avatar">
+        <div class="player-main-info">
+          <div class="avatar-display" id="avatar-container" style="display:none;">
+            <img id="player-avatar" src="" alt="Avatar">
+          </div>
+          <div class="player-side-info">
+            <p class="player-info" id="player-details"></p>
+            <div class="stats-info" id="stats-display" style="display:none;"></div>
+            <div class="profile-buttons" id="profile-buttons" style="display:none;">
+              <button class="pokedex-btn" id="edit-profile-btn">Editar Perfil</button>
+            </div>
+          </div>
         </div>
-        <p class="player-info" id="player-details"></p>
-        <div class="stats-info" id="stats-display" style="display:none;"></div>
-        <div class="profile-buttons" id="profile-buttons" style="display:none;">
-          <button class="pokedex-btn" id="edit-profile-btn">Editar Perfil</button>
-          <button class="pokedex-btn" id="play-btn" style="display:none;">► J O G A R ◄</button>
+        <button class="pokedex-btn" id="play-btn" style="display:none;">► J O G A R ◄</button>
+        <div class="rules-section">
+          <h4 class="rules-title">📖 COMO JOGAR</h4>
+          <p class="rules-intro">Descubra o time de 6 Pokémon do seu adversário antes que ele descubra o seu!</p>
+          <ul class="rules-list">
+            <li><span class="rules-badge rules-badge-blue">PERGUNTA</span>Faça uma pergunta sobre um Pokémon específico do time adversário.<br><em>Ex: "Seu 3º Pokémon é do tipo Água?"</em></li>
+            <li><span class="rules-badge rules-badge-yellow">CHUTE</span>Tente adivinhar diretamente qual Pokémon está em determinada posição.<br><em>Ex: "Acho que seu 3º Pokémon é o Squirtle!"</em></li>
+            <li><span class="rules-badge rules-badge-red">PENALIDADE</span>Se chutar e errar, você perde a sua próxima rodada. Pense bem antes de arriscar!</li>
+          </ul>
         </div>
       </div>
     </div>

@@ -40,6 +40,9 @@ class PlayerRegistration {
       avatarButton.classList.add('selected');
       this.updateAvatarPreview();
     }
+
+    // Formulário já tem dados — habilitar botão
+    this.validateForm();
   }
 
   /**
@@ -73,15 +76,41 @@ class PlayerRegistration {
 
     // Character counter
     const nicknameInput = document.getElementById('nickname-input');
-    nicknameInput.addEventListener('input', (e) => this.updateCharCounter(e.target.value));
+    nicknameInput.addEventListener('input', (e) => {
+      this.updateCharCounter(e.target.value);
+      this.validateForm();
+    });
 
     // Register button
     document.getElementById('register-btn').addEventListener('click', () => this.handleRegister());
 
-    // Logout button
+    // Delete profile button
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => this.handleLogout());
+    }
+
+    // Modal buttons
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.getElementById('delete-modal').style.display = 'none';
+      });
+    }
+
+    const confirmBtn = document.getElementById('modal-confirm-btn');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => this.confirmDelete());
+    }
+
+    // Close modal clicking outside
+    const modalOverlay = document.getElementById('delete-modal');
+    if (modalOverlay) {
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          modalOverlay.style.display = 'none';
+        }
+      });
     }
   }
 
@@ -95,6 +124,14 @@ class PlayerRegistration {
 
     // Update preview
     this.updateAvatarPreview();
+    this.validateForm();
+  }
+
+  validateForm() {
+    const nickname = document.getElementById('nickname-input').value.trim();
+    const registerBtn = document.getElementById('register-btn');
+    const isValid = nickname.length > 0 && this.selectedAvatar !== null;
+    registerBtn.disabled = !isValid;
   }
 
   updateAvatarPreview() {
@@ -140,17 +177,28 @@ class PlayerRegistration {
   }
 
   /**
-   * Trata o logout do jogador
+   * Trata a exclusão do perfil do jogador
    */
   handleLogout() {
-    if (confirm('Tem certeza que deseja fazer logout?')) {
-      UserManager.clearPlayerData();
-      this.showMessage('✓ Logout realizado! Redirecionando...', 'success');
-
-      setTimeout(() => {
-        window.location.href = 'register.html';
-      }, 1000);
+    const modal = document.getElementById('delete-modal');
+    if (modal) {
+      modal.style.display = 'flex';
     }
+  }
+
+  /**
+   * Confirma e executa a exclusão do perfil
+   */
+  confirmDelete() {
+    UserManager.clearPlayerData();
+    this.showMessage('✓ Perfil deletado! Redirecionando...', 'success');
+    const modal = document.getElementById('delete-modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+    setTimeout(() => {
+      window.location.href = 'register.html';
+    }, 1200);
   }
 
   showMessage(message, type) {
