@@ -1,0 +1,480 @@
+/* ====== BODY & PAGE ====== */
+body.register-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 10px;
+    background: #001530 !important;
+    overflow: hidden;
+}
+
+/* ====== POKÉDEX CONTAINER ====== */
+.pokedex-container {
+    width: 100%;
+    max-width: 95vw;
+    height: 90vh;
+    background: linear-gradient(135deg, #cc0000 0%, #990000 50%, #cc0000 100%);
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 -5px 10px rgba(0, 0, 0, 0.3);
+    border: 3px solid #660000;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ====== POKÉDEX TOP ====== */
+.pokedex-top {
+    background: #cc0000;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: inset 0 -3px 8px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.pokedex-light {
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle at 30% 30%, #ffff00, #ffcc00);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.6);
+    flex-shrink: 0;
+}
+
+.pokedex-title {
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 20px;
+    color: #ffff00;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin: 0;
+    letter-spacing: 2px;
+    flex: 1;
+}
+
+.pokedex-buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.button-light {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.3), 0 0 8px currentColor;
+}
+
+.button-light.red {
+    background: #ff0000;
+}
+
+.button-light.yellow {
+    background: #ffff00;
+}
+
+.button-light.green {
+    background: #00ff00;
+}
+
+/* ====== POKÉDEX MIDDLE (FLEX) ====== */
+.pokedex-middle {
+    display: flex;
+    gap: 15px;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ====== POKÉDEX SCREEN ====== */
+.pokedex-screen {
+    background: linear-gradient(135deg, #001530 0%, #002550 100%);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+    border: 3px solid #000;
+    flex: 0.6;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.registration-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.registration-form h2 {
+    font-family: 'Pixelify Sans', sans-serif;
+    color: #ffff00;
+    text-align: center;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* ====== FORM GROUP ====== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-family: 'Lexend', sans-serif;
+    color: #ffff00;
+    font-size: 11px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.form-group input {
+    background: #ffffff !important;
+    border: 2px solid #ffff00 !important;
+    padding: 8px !important;
+    font-size: 13px !important;
+    border-radius: 5px !important;
+}
+
+.form-group input:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+}
+
+.char-counter {
+    font-family: 'Lexend', sans-serif;
+    color: #aaaaaa;
+    font-size: 9px;
+    text-align: right;
+}
+
+/* ====== AVATAR SELECTION ====== */
+.avatar-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.avatar-selection label {
+    font-family: 'Lexend', sans-serif;
+    color: #ffff00;
+    font-size: 11px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.avatar-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.avatar-button {
+    background: linear-gradient(135deg, #003366 0%, #001a4d 100%);
+    border: 3px solid #ffff00;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    flex: 1;
+    max-width: 100px;
+}
+
+.avatar-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(255, 255, 0, 0.3);
+}
+
+.avatar-button img {
+    width: 60px;
+    height: 60px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.avatar-button span {
+    font-family: 'Lexend', sans-serif;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.avatar-button.selected {
+    background: linear-gradient(135deg, #00aa00 0%, #006600 100%);
+    border-color: #00ff00;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+}
+
+.avatar-button.selected span {
+    color: #00ff00;
+}
+
+/* ====== AVATAR PREVIEW SIDEBAR ====== */
+.avatar-preview-sidebar {
+    flex: 0.4;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow: hidden;
+}
+
+.avatar-preview {
+    background: linear-gradient(135deg, #002233 0%, #001144 100%);
+    border: 2px solid #ffff00;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    max-width: 150px;
+    max-height: 150px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.7));
+    object-fit: contain;
+}
+
+.avatar-preview p {
+    font-family: 'Lexend', sans-serif;
+    color: #aaaaaa;
+    margin: 0;
+    font-size: 11px;
+}
+
+/* ====== BUTTONS SECTION ====== */
+.buttons-section {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+/* ====== REGISTER BUTTON ====== */
+.register-button {
+    background: linear-gradient(135deg, #ffff00 0%, #ffcc00 100%);
+    border: 3px solid #cc9900;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #001530;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    flex: 1;
+}
+
+.register-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.register-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.register-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ====== LOGOUT BUTTON ====== */
+.logout-button {
+    background: linear-gradient(135deg, #ff6666 0%, #cc0000 100%);
+    border: 3px solid #990000;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    flex: 1;
+}
+
+.logout-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.logout-button:active {
+    transform: translateY(0);
+}
+
+/* ====== STATUS MESSAGE ====== */
+.status-message {
+    font-family: 'Lexend', sans-serif;
+    font-size: 11px;
+    text-align: center;
+    min-height: 16px;
+    margin: 0;
+    padding: 4px;
+}
+
+.status-message.success {
+    color: #00ff00;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.status-message.error {
+    color: #ff0000;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+/* ====== POKÉDEX BOTTOM ====== */
+.pokedex-bottom {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+    padding: 12px;
+    background: #cc0000;
+    border-radius: 15px;
+    box-shadow: inset 0 -3px 8px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.d-pad {
+    width: 50px;
+    height: 50px;
+    background: #333333;
+    border-radius: 5px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 4px;
+}
+
+.d-pad::before {
+    content: '';
+    grid-column: 2;
+    grid-row: 1;
+    background: #555555;
+    border-radius: 2px;
+}
+
+.d-pad::after {
+    content: '';
+    grid-column: 2;
+    grid-row: 3;
+    background: #555555;
+    border-radius: 2px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.ab-button {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid #333333;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.ab-button:nth-child(1) {
+    background: #ff0000;
+    color: white;
+}
+
+.ab-button:nth-child(2) {
+    background: #00ff00;
+    color: #001530;
+}
+
+.ab-button:hover {
+    transform: scale(1.1);
+}
+
+.ab-button:active {
+    transform: scale(0.95);
+}
+
+/* ====== SCROLLBAR STYLING ====== */
+.pokedex-screen::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pokedex-screen::-webkit-scrollbar-track {
+    background: #001530;
+    border-radius: 3px;
+}
+
+.pokedex-screen::-webkit-scrollbar-thumb {
+    background: #ffff00;
+    border-radius: 3px;
+}
+
+.pokedex-screen::-webkit-scrollbar-thumb:hover {
+    background: #cccc00;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 1024px) {
+    .pokedex-middle {
+        flex-direction: column;
+    }
+
+    .pokedex-screen {
+        flex: 1;
+    }
+
+    .avatar-preview-sidebar {
+        flex: auto;
+        max-height: 200px;
+    }
+
+    .avatar-button img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .registration-form h2 {
+        font-size: 14px;
+    }
+
+    .pokedex-title {
+        font-size: 16px;
+    }
+}
+
+@media (max-height: 600px) {
+    .pokedex-container {
+        height: auto;
+        max-height: 95vh;
+    }
+
+    .pokedex-screen {
+        max-height: 400px;
+    }
+
+    .avatar-preview {
+        min-height: 80px;
+    }
+}

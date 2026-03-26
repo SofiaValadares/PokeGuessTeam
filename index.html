@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeTeamGuess</title>
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+  <h1>PokeTeamGuess</h1>
+  <p id="welcome-message">Carregando...</p>
+  <button id="edit-profile-btn" style="display:none;">Editar Perfil</button>
+  <button id="go-to-register-btn">Ir para Registro</button>
+
+  <script src="js/user.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Verificar se não há recistro de jogador
+      if (!UserManager.isPlayerRegistered()) {
+        // Redirecionar para a página de registro
+        window.location.href = 'register.html';
+      } else {
+        // Se há registro, mostrar dados do jogador
+        const player = UserManager.getPlayerData();
+        const welcomeMessage = document.getElementById('welcome-message');
+        welcomeMessage.textContent = `Bem-vindo, ${player.nickname}!`;
+
+        // Mostrar botão de editar perfil
+        document.getElementById('edit-profile-btn').style.display = 'block';
+        document.getElementById('edit-profile-btn').addEventListener('click', () => {
+          window.location.href = 'register.html';
+        });
+
+        // Esconder botão de ir para registro
+        document.getElementById('go-to-register-btn').style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
