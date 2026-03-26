@@ -39,7 +39,9 @@ class UserManager {
         updatedAt: new Date().toISOString(),
         level: playerData.level || 1,
         experience: playerData.experience || 0,
-        team: playerData.team || []
+        matchesWon: playerData.matchesWon || 0,
+        team: playerData.team || [],
+        lastTeam: playerData.lastTeam || []
       };
 
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(completeData));
@@ -252,5 +254,80 @@ class UserManager {
   static getTeam() {
     const playerData = this.getPlayerData();
     return playerData ? playerData.team : [];
+  }
+
+  /**
+   * Salva o time completo do jogador
+   * @param {Array} teamArray Array de Pokémon
+   * @returns {Object|null}
+   */
+  static saveTeam(teamArray) {
+    const playerData = this.getPlayerData();
+    if (playerData) {
+      return this.updatePlayerData({
+        team: teamArray,
+        lastTeam: teamArray
+      });
+    }
+    return null;
+  }
+
+  /**
+   * Obtém o último time salvo do jogador
+   * @returns {Array}
+   */
+  static getLastTeam() {
+    const playerData = this.getPlayerData();
+    return playerData && playerData.lastTeam ? playerData.lastTeam : [];
+  }
+
+  /**
+   * Verifica se o time está completo (6 Pokémon)
+   * @returns {Boolean}
+   */
+  static isTeamComplete() {
+    const team = this.getTeam();
+    return team.length === 6;
+  }
+
+  /**
+   * Adiciona uma vitória ao jogador
+   * @returns {Object|null}
+   */
+  static addMatchWin() {
+    const playerData = this.getPlayerData();
+    if (playerData) {
+      return this.updatePlayerData({
+        matchesWon: (playerData.matchesWon || 0) + 1
+      });
+    }
+    return null;
+  }
+
+  /**
+   * Obtém o número de vitórias
+   * @returns {Number}
+   */
+  static getMatchesWon() {
+    const playerData = this.getPlayerData();
+    return playerData ? (playerData.matchesWon || 0) : 0;
+  }
+
+  /**
+   * Obtém dados estatísticas do jogador
+   * @returns {Object}
+   */
+  static getStats() {
+    const playerData = this.getPlayerData();
+    if (!playerData) return null;
+    
+    return {
+      nickname: playerData.nickname,
+      avatar: playerData.avatar,
+      level: playerData.level,
+      experience: playerData.experience,
+      matchesWon: playerData.matchesWon || 0,
+      teamSize: (playerData.team || []).length
+    };
   }
 }

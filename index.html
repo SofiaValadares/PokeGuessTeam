@@ -5,36 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PokeTeamGuess</title>
     <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/pages/home.css">
 </head>
-<body>
-  <h1>PokeTeamGuess</h1>
-  <p id="welcome-message">Carregando...</p>
-  <button id="edit-profile-btn" style="display:none;">Editar Perfil</button>
-  <button id="go-to-register-btn">Ir para Registro</button>
+<body class="index-page">
+  <div class="pokedex">
+    <!-- Header -->
+    <div class="pokedex-header">
+      <div class="pokedex-header-light"></div>
+      <div class="header-info">
+        <h1 class="pokedex-header-title">POKéTEAMGUESS</h1>
+        <p class="player-name" id="welcome-message">Carregando...</p>
+      </div>
+      <div class="pokedex-header-buttons">
+        <div class="pokedex-header-button red"></div>
+        <div class="pokedex-header-button yellow"></div>
+        <div class="pokedex-header-button green"></div>
+      </div>
+    </div>
+
+    <!-- Main Area -->
+    <div class="pokedex-main-area">
+      <!-- Team Section (Left Screen) -->
+      <div class="pokedex-screen-left">
+        <div class="team-section" id="team-section" style="display:none;">
+          <h3>⚔ SEU TIME (6 POKéMON)</h3>
+          <div class="team-grid" id="team-grid">
+            <div class="team-slot empty" data-index="0"></div>
+            <div class="team-slot empty" data-index="1"></div>
+            <div class="team-slot empty" data-index="2"></div>
+            <div class="team-slot empty" data-index="3"></div>
+            <div class="team-slot empty" data-index="4"></div>
+            <div class="team-slot empty" data-index="5"></div>
+          </div>
+          <div class="pokemon-selector" id="pokemon-selector" style="display:block;">
+            <input type="text" id="pokemon-search" placeholder="🔍 Pesquisar Pokémon..." class="pokemon-search-input">
+            <div class="selector-buttons">
+              <button class="selector-btn" id="random-team-btn" style="background:#78C8F0;color:#001530;">Time Aleatório</button>
+              <button class="selector-btn" id="clear-team-btn" style="background:#ff6464;color:#fff;">Limpar Time</button>
+            </div>
+            <div id="pokemon-search-dropdown" class="pokemon-search-dropdown"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player Info Section (Right Screen) -->
+      <div class="pokedex-screen-right">
+        <p class="welcome-text" id="main-title">POKéDEX</p>
+        <div class="avatar-display" id="avatar-container" style="display:none;">
+          <img id="player-avatar" src="" alt="Avatar">
+        </div>
+        <p class="player-info" id="player-details"></p>
+        <div class="stats-info" id="stats-display" style="display:none;"></div>
+        <div class="profile-buttons" id="profile-buttons" style="display:none;">
+          <button class="pokedex-btn" id="edit-profile-btn">Editar Perfil</button>
+          <button class="pokedex-btn" id="play-btn" style="display:none;">► J O G A R ◄</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Button Area -->
+    <div class="pokedex-button-area">
+      <button class="pokedex-btn" id="go-to-register-btn">Registrar Treinador</button>
+      <div class="pokedex-dpad"></div>
+      <div class="pokedex-action-buttons">
+        <button class="pokedex-action-button">B</button>
+        <button class="pokedex-action-button">A</button>
+      </div>
+    </div>
+  </div>
 
   <script src="js/user.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Verificar se não há recistro de jogador
-      if (!UserManager.isPlayerRegistered()) {
-        // Redirecionar para a página de registro
-        window.location.href = 'register.html';
-      } else {
-        // Se há registro, mostrar dados do jogador
-        const player = UserManager.getPlayerData();
-        const welcomeMessage = document.getElementById('welcome-message');
-        welcomeMessage.textContent = `Bem-vindo, ${player.nickname}!`;
-
-        // Mostrar botão de editar perfil
-        document.getElementById('edit-profile-btn').style.display = 'block';
-        document.getElementById('edit-profile-btn').addEventListener('click', () => {
-          window.location.href = 'register.html';
-        });
-
-        // Esconder botão de ir para registro
-        document.getElementById('go-to-register-btn').style.display = 'none';
-      }
-    });
-  </script>
+  <script src="js/pokemonData.js"></script>
+  <script src="js/teamPage.js"></script>
 </body>
 </html>
