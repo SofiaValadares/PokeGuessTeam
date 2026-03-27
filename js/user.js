@@ -2,6 +2,8 @@
 
 class UserManager {
   static STORAGE_KEY = 'poketeamguess_player';
+  static OPPONENT_DATA_KEY = 'poketeamguess_opponent_data';
+  static MATCH_STATE_KEY = 'poketeamguess_match_state';
   static BASE_LEVEL_XP = 100;
 
   /**
@@ -435,5 +437,110 @@ class UserManager {
       winRate,
       teamSize: (playerData.team || []).length
     };
+  }
+
+  static setOpponentData(opponentData) {
+    try {
+      const payload = {
+        nickname: opponentData.nickname || '',
+        team: Array.isArray(opponentData.team) ? opponentData.team : [],
+        source: opponentData.source || 'code',
+        importedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(this.OPPONENT_DATA_KEY, JSON.stringify(payload));
+      return payload;
+    } catch (error) {
+      console.error('Erro ao salvar dados do adversário:', error);
+      return null;
+    }
+  }
+
+  static getOpponentData() {
+    try {
+      const raw = localStorage.getItem(this.OPPONENT_DATA_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      console.error('Erro ao obter dados do adversário:', error);
+      return null;
+    }
+  }
+
+  static clearOpponentData() {
+    try {
+      localStorage.removeItem(this.OPPONENT_DATA_KEY);
+      return true;
+    } catch (error) {
+      console.error('Erro ao limpar dados do adversário:', error);
+      return false;
+    }
+  }
+
+  static getPlayerCode() {
+    const playerData = this.getPlayerData();
+    if (!playerData) return '';
+
+    const nickname = String(playerData.nickname || '').trim();
+    const registeredAt = String(playerData.registeredAt || '').trim();
+    if (!nickname || !registeredAt) return '';
+
+    return `${nickname}::${registeredAt}`;
+  }
+
+  static setMatchState(matchState) {
+    try {
+      const payload = {
+        playerCode: String(matchState.playerCode || ''),
+        mode: matchState.mode || 'active',
+        enemySlots: Array.isArray(matchState.enemySlots) ? matchState.enemySlots : [],
+        selfSlots: Array.isArray(matchState.selfSlots) ? matchState.selfSlots : [],
+        historyEntries: Array.isArray(matchState.historyEntries) ? matchState.historyEntries : [],
+        freeNotes: String(matchState.freeNotes || ''),
+        selectedEnemySlot: matchState.selectedEnemySlot ?? null,
+        currentTurn: matchState.currentTurn || 'my',
+        roundCounter: Number(matchState.roundCounter || 0),
+        skipMyNextTurn: Boolean(matchState.skipMyNextTurn),
+        skipOpponentNextTurn: Boolean(matchState.skipOpponentNextTurn),
+        matchResult: matchState.matchResult || null,
+        opponentData: matchState.opponentData || null,
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(this.MATCH_STATE_KEY, JSON.stringify(payload));
+      return payload;
+    } catch (error) {
+      console.error('Erro ao salvar estado da partida:', error);
+      return null;
+    }
+  }
+
+  static getMatchState() {
+    try {
+      const raw = localStorage.getItem(this.MATCH_STATE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      console.error('Erro ao obter estado da partida:', error);
+      return null;
+    }
+  }
+
+  static hasActiveMatchForPlayer(playerCode) {
+    const code = String(playerCode || '');
+    if (!code) return false;
+
+    const state = this.getMatchState();
+    if (!state) return false;
+
+    return String(state.playerCode || '') === code;
+  }
+
+  static clearMatchState() {
+    try {
+      localStorage.removeItem(this.MATCH_STATE_KEY);
+      return true;
+    } catch (error) {
+      console.error('Erro ao limpar estado da partida:', error);
+      return false;
+    }
   }
 }

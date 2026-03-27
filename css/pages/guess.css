@@ -8,6 +8,54 @@ body.guess-page {
   overflow: hidden;
 }
 
+.start-turn-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2vh;
+}
+
+.start-turn-modal.is-hidden {
+  display: none;
+}
+
+.start-turn-modal-card {
+  width: min(46vh, 92vw);
+  border: 0.15vh solid #78C8F0;
+  border-radius: 1vh;
+  background: linear-gradient(180deg, rgba(0, 37, 80, 0.96) 0%, rgba(0, 21, 48, 0.96) 100%);
+  box-shadow: 0 0.8vh 2vh rgba(0, 0, 0, 0.45);
+  padding: 1.2vh;
+}
+
+.start-turn-modal-card h4 {
+  margin: 0;
+  color: #ffff00;
+  font-size: 1.1vh;
+  font-family: 'Pixelify Sans', sans-serif;
+}
+
+.start-turn-modal-card p {
+  margin: 0.55vh 0 0.9vh;
+  color: #d6e8f5;
+  font-size: 0.9vh;
+}
+
+.start-turn-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6vh;
+}
+
+.start-turn-actions .guess-mini-btn {
+  width: 100%;
+}
+
+
 .battle-banner {
   background-image: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.35)), url('../../assets/backgroud-batle.png');
   background-size: contain;
@@ -66,11 +114,22 @@ body.guess-page {
   image-rendering: pixelated;
   object-fit: contain;
   filter: drop-shadow(0 0.4vh 1vh rgba(0, 0, 0, 0.85));
+  animation: trainer-bob 1.8s ease-in-out infinite;
 }
 
 .trainer-side:not(.opponent) .trainer-sprite {
   width: 15.2vh;
   height: 15.2vh;
+}
+
+.trainer-side.opponent .trainer-sprite {
+  animation-delay: 0.9s;
+}
+
+@keyframes trainer-bob {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-0.5vh); }
+  100% { transform: translateY(0); }
 }
 
 .guess-left-screen,
@@ -192,6 +251,7 @@ body.guess-page {
   box-shadow: 0 0 0.7vh rgba(255, 100, 100, 0.6);
 }
 
+
 .card-right-col {
   display: flex;
   flex-direction: column;
@@ -225,6 +285,52 @@ body.guess-page {
   color: #cccccc;
 }
 
+.filter-validation-group {
+  display: inline-flex;
+  gap: 0.3vh;
+  flex-wrap: wrap;
+}
+
+.filter-validation-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.8vh;
+  padding: 0.1vh 0.45vh;
+  border-radius: 0.3vh;
+  border: 0.1vh solid #777;
+  background: rgba(120, 120, 120, 0.16);
+  color: #dddddd;
+  font-size: 0.72vh;
+  font-family: 'Pixelify Sans', sans-serif;
+  text-transform: uppercase;
+}
+
+.filter-validation-badge.correct {
+  color: #90EE90;
+  border-color: #90EE90;
+  background: rgba(144, 238, 144, 0.16);
+}
+
+.filter-validation-badge.wrong,
+.filter-validation-badge.lower {
+  color: #ff8f8f;
+  border-color: #ff8f8f;
+  background: rgba(255, 100, 100, 0.16);
+}
+
+.filter-validation-badge.higher {
+  color: #ff8f8f;
+  border-color: #ff8f8f;
+  background: rgba(255, 100, 100, 0.16);
+}
+
+.filter-validation-badge.neutral {
+  color: #cccccc;
+  border-color: #777;
+  background: rgba(120, 120, 120, 0.14);
+}
+
 .enemy-field,
 .self-range {
   background: #002550;
@@ -239,8 +345,63 @@ body.guess-page {
   min-width: 8vh;
 }
 
+.enemy-value-field {
+  width: 8.2vh;
+  min-width: 8.2vh;
+}
+
 .range-row input {
   width: 8.2vh;
+}
+
+.value-guess-row {
+  align-items: center;
+}
+
+.numeric-hints {
+  display: inline-flex;
+  gap: 0.28vh;
+  align-items: center;
+}
+
+.numeric-hint-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.1vh;
+  padding: 0.1vh 0.4vh;
+  border-radius: 0.3vh;
+  border: 0.1vh solid;
+  font-size: 0.72vh;
+  font-family: 'Pixelify Sans', sans-serif;
+  white-space: nowrap;
+}
+
+.numeric-hint-badge.up {
+  color: #ff8f8f;
+  border-color: #ff8f8f;
+  background: rgba(255, 100, 100, 0.16);
+}
+
+.numeric-hint-badge.down {
+  color: #90EE90;
+  border-color: #90EE90;
+  background: rgba(144, 238, 144, 0.16);
+}
+
+.solved-field,
+.solved-field:disabled {
+  color: #90EE90;
+  border-color: #90EE90;
+  background: rgba(144, 238, 144, 0.2);
+  opacity: 1;
+}
+
+.wrong-last-guess,
+.wrong-last-guess:disabled {
+  color: #ff8f8f;
+  border-color: #ff8f8f;
+  background: rgba(255, 100, 100, 0.2);
 }
 
 .type-tags-preview {
@@ -291,10 +452,38 @@ body.guess-page {
   border-radius: 0.8vh;
   background: rgba(0, 0, 0, 0.22);
   padding: 0.8vh;
-  margin-bottom: 0.8vh;
+  margin-bottom: 0.3vh;
   display: flex;
   flex-direction: column;
   min-height: 22vh;
+}
+
+.battle-scoreboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 0.1vh solid rgba(255, 255, 0, 0.45);
+  border-radius: 0.6vh;
+  background: rgba(0, 21, 48, 0.65);
+  padding: 0.45vh 0.6vh;
+  margin-bottom: 0.4vh;
+}
+
+.score-label {
+  color: #ffff00;
+  font-size: 0.88vh;
+  font-family: 'Pixelify Sans', sans-serif;
+}
+
+.score-values {
+  display: flex;
+  gap: 0.65vh;
+}
+
+.score-item {
+  color: #d6e8f5;
+  font-size: 0.82vh;
+  font-family: 'Pixelify Sans', sans-serif;
 }
 
 .match-result-panel {
@@ -476,7 +665,7 @@ body.guess-page {
 .guess-feedback.error { color: #ff6464; }
 
 .free-notes-wrapper {
-  margin-top: 0.8vh;
+  margin-top: 0.3vh;
   border: 0.1vh solid rgba(255, 255, 0, 0.5);
   border-radius: 0.7vh;
   padding: 0.7vh;
@@ -487,12 +676,90 @@ body.guess-page {
   min-height: 0;
 }
 
+.turn-panel {
+  margin-bottom: 0.7vh;
+  border: 0.1vh solid rgba(255, 255, 0, 0.45);
+  border-radius: 0.6vh;
+  padding: 0.6vh;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.turn-panel h4 {
+  margin: 0 0 0.35vh 0;
+  color: #ffff00;
+  font-size: 0.92vh;
+  font-family: 'Pixelify Sans', sans-serif;
+}
+
+.turn-status-text {
+  margin: 0 0 0.5vh 0;
+  font-size: 0.85vh;
+  color: #d6e8f5;
+}
+
+.turn-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5vh;
+}
+
+.dynamic-requirements-panel {
+  margin-top: 0.7vh;
+  border: 0.1vh solid rgba(120, 200, 240, 0.45);
+  border-radius: 0.6vh;
+  padding: 0.6vh;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dynamic-requirements-panel h4 {
+  margin: 0 0 0.4vh 0;
+  color: #90EE90;
+  font-size: 0.9vh;
+  font-family: 'Pixelify Sans', sans-serif;
+}
+
+.rounds-table-wrapper {
+  max-height: 8vh;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.rounds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78vh;
+  color: #d6e8f5;
+}
+
+.rounds-table th,
+.rounds-table td {
+  border: 0.1vh solid rgba(120, 200, 240, 0.5);
+  padding: 0.25vh 0.35vh;
+  text-align: left;
+}
+
+.rounds-table th {
+  color: #ffff00;
+  background: rgba(0, 21, 48, 0.8);
+}
+
+.dynamic-btn-row {
+  display: flex;
+  gap: 0.5vh;
+  margin-top: 0.5vh;
+}
+
+.dynamic-btn-row .guess-mini-btn {
+  flex: 1;
+}
+
 .free-notes-wrapper h4 {
   margin: 0 0 0.5vh 0;
   color: #ffff00;
   font-size: 0.95vh;
   font-family: 'Pixelify Sans', sans-serif;
 }
+
 
 #free-notes {
   width: 100%;

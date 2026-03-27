@@ -41,7 +41,6 @@
             <p id="candidates-count">Selecione um slot para ver opções de chute</p>
             <div class="guess-header-actions">
               <button id="close-guess-btn" class="guess-mini-btn">Fechar Seleção</button>
-              <button id="clear-filters-btn" class="guess-mini-btn">Limpar Filtros</button>
             </div>
           </div>
           <div class="candidate-grid" id="candidate-grid"></div>
@@ -50,15 +49,21 @@
         <div class="guess-action-row">
           <select id="enemy-guess-select"></select>
           <button id="confirm-guess-btn" class="guess-confirm-btn">CHUTAR SLOT</button>
-          <button id="clear-guess-btn" class="guess-confirm-btn guess-clear-btn">Limpar Chute</button>
         </div>
         <p class="guess-feedback" id="guess-feedback"></p>
       </div>
 
       <div class="pokedex-screen-right guess-right-screen">
         <div class="reserved-panel">
+          <div class="battle-scoreboard" id="battle-scoreboard">
+            <span class="score-label">Placar</span>
+            <div class="score-values">
+              <span class="score-item" id="score-my-hits">Você: 0</span>
+              <span class="score-item" id="score-opponent-hits">Adversário: 0</span>
+            </div>
+          </div>
           <div class="battle-banner" id="battle-banner">
-            <div class="match-result-panel" id="match-result-panel" style="display:none;">
+            <div class="match-result-panel is-hidden" id="match-result-panel">
               <h4 id="match-result-title"></h4>
               <p id="match-result-description"></p>
             </div>
@@ -72,10 +77,38 @@
         </div>
 
         <div class="free-notes-wrapper">
+          <div class="turn-panel">
+            <h4>🎲 Controle de Turnos</h4>
+            <p id="turn-status" class="turn-status-text">Carregando turno...</p>
+            <div class="turn-btn-row">
+              <button id="pass-turn-btn" class="guess-mini-btn">Passar Turno</button>
+              <button id="remove-round-btn" class="guess-mini-btn">Voltar Rodada</button>
+            </div>
+          </div>
+
           <h4>📝 Anotações Livres</h4>
           <textarea id="free-notes" placeholder="Escreva aqui qualquer estratégia, suspeita ou informação importante..."></textarea>
           <button id="save-notes-btn" class="guess-mini-btn">Salvar Anotações</button>
           <span id="notes-status"></span>
+
+          <div class="dynamic-requirements-panel">
+            <h4>📊 Histórico de Rodadas</h4>
+            <div class="rounds-table-wrapper">
+              <table class="rounds-table" id="rounds-table">
+                <thead>
+                  <tr>
+                    <th>Rodada</th>
+                    <th>Turno</th>
+                    <th>Ação</th>
+                    <th>Slot</th>
+                    <th>Resultado</th>
+                  </tr>
+                </thead>
+                <tbody id="rounds-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
           <button id="finish-match-btn" class="guess-finish-btn" disabled>Finalizar Partida</button>
           <button id="give-up-btn" class="guess-finish-btn guess-give-up-btn">Desistir da Partida</button>
         </div>
@@ -89,6 +122,17 @@
         <button class="pokedex-action-button">A</button>
       </div>
       <p class="sprite-credit">Sprites por artistas da PMD SpriteCollab — <a href="https://sprites.pmdcollab.org" target="_blank" rel="noopener noreferrer">sprites.pmdcollab.org</a></p>
+    </div>
+  </div>
+
+  <div class="start-turn-modal is-hidden" id="start-turn-modal" role="dialog" aria-modal="true" aria-labelledby="start-turn-title">
+    <div class="start-turn-modal-card">
+      <h4 id="start-turn-title">Quem começa a partida?</h4>
+      <p>Escolha quem faz a primeira jogada.</p>
+      <div class="start-turn-actions">
+        <button id="start-my-turn-btn" class="guess-mini-btn">Eu começo</button>
+        <button id="start-opponent-turn-btn" class="guess-mini-btn">Adversário começa</button>
+      </div>
     </div>
   </div>
 

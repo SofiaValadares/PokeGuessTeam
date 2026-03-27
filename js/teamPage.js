@@ -5,11 +5,17 @@ let draggedSlotIndex = null;
 let renderPokemonDropdown = null;
 let searchDebounceTimer = null;
 let cachedAllPokemon = [];
+let importedOpponentData = null;
+let hasValidOpponentCode = false;
+let ownEncryptedMatchCode = '';
+let importCodeDebounceTimer = null;
 
 const SEARCH_DEBOUNCE_MS = 120;
 const MAX_DROPDOWN_RESULTS_WHEN_EMPTY = 60;
+const MATCH_CODE_SECRET = 'PokeTeamGuess::Exchange::2026';
+const MATCH_CODE_PREFIX = 'PTG1';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   if (!UserManager.isPlayerRegistered()) {
     window.location.href = 'register.html';
   } else {
@@ -30,15 +36,37 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', adjustPokemonDropdownHeight);
     requestAnimationFrame(adjustPokemonDropdownHeight);
     loadTeamDisplay();
+    setupMatchCodeSection();
+    await refreshEncryptedMatchCode();
     const profileButtons = document.getElementById('profile-buttons');
     profileButtons.style.display = 'flex';
     document.getElementById('edit-profile-btn').addEventListener('click', () => {
       window.location.href = 'register.html';
     });
-    document.getElementById('play-btn').addEventListener('click', () => {
-      if (!document.getElementById('play-btn').disabled) {
-        window.location.href = 'guess.html';
-      }
+    const playBtn = document.getElementById('play-btn');
+    const resumeBtn = document.getElementById('resume-match-btn');
+    playBtn.addEventListener('click', () => {
+      if (playBtn.disabled) return;
+      UserManager.clearMatchState();
+      const playerName = UserManager.getPlayerData()?.nickname || '';
+      const opponentName = importedOpponentData?.nickname || '';
+      const params = new URLSearchParams({
+        playerName,
+        opponentName
+      });
+      window.location.href = `guess.html?${params.toString()}`;
+    });
+    resumeBtn.addEventListener('click', () => {
+      if (resumeBtn.disabled) return;
+      const savedMatch = UserManager.getMatchState();
+      const playerName = UserManager.getPlayerData()?.nickname || '';
+      const persistedOpponentName = savedMatch?.opponentData?.nickname || UserManager.getOpponentData()?.nickname || '';
+      const opponentName = importedOpponentData?.nickname || persistedOpponentName;
+      const params = new URLSearchParams({
+        playerName,
+        opponentName
+      });
+      window.location.href = `guess.html?${params.toString()}`;
     });
     document.getElementById('go-to-register-btn').style.display = 'none';
     updatePlayButton();
@@ -49,6 +77,188 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+async function setupMatchCodeSection() {
+  const copyButton = document.getElementById('copy-match-code-btn');
+  const opponentCodeInput = document.getElementById('opponent-match-code');
+  const storedOpponent = UserManager.getOpponentData();
+
+  if (storedOpponent && Array.isArray(storedOpponent.team) && storedOpponent.team.length === 6) {
+    if (storedOpponent.source !== 'ai') {
+      importedOpponentData = storedOpponent;
+      hasValidOpponentCode = false;
+      setMatchCodeStatus('Código do adversário já carregado para a próxima partida.', false);
+    } else {
+      UserManager.clearOpponentData();
+    }
+  }
+
+  copyButton?.addEventListener('click', async () => {
+    const code = ownEncryptedMatchCode.trim();
+    if (!code) {
+      setMatchCodeStatus('Monte seu time completo para gerar o código.', true);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(code);
+      setMatchCodeStatus('Código copiado com sucesso.', false);
+    } catch (error) {
+      setMatchCodeStatus('Não foi possível copiar automaticamente. Copie manualmente.', true);
+    }
+  });
+
+  opponentCodeInput?.addEventListener('input', () => {
+    hasValidOpponentCode = false;
+    importedOpponentData = null;
+    UserManager.clearOpponentData();
+    updatePlayButton();
+    clearTimeout(importCodeDebounceTimer);
+    importCodeDebounceTimer = setTimeout(() => {
+      importOpponentCode(opponentCodeInput.value.trim());
+    }, 250);
+  });
+}
+
+async function refreshEncryptedMatchCode() {
+  const team = UserManager.getTeam();
+  const player = UserManager.getPlayerData();
+  const copyButton = document.getElementById('copy-match-code-btn');
+
+  if (!player || team.length !== 6) {
+    ownEncryptedMatchCode = '';
+    if (copyButton) {
+      copyButton.disabled = true;
+    }
+    return;
+  }
+
+  try {
+    ownEncryptedMatchCode = await encryptMatchCode({
+      nickname: player.nickname,
+      teamIds: team.map(pokemon => Number(pokemon.id))
+    });
+    if (copyButton) {
+      copyButton.disabled = false;
+    }
+  } catch (error) {
+    ownEncryptedMatchCode = '';
+    if (copyButton) {
+      copyButton.disabled = true;
+    }
+    setMatchCodeStatus('Falha ao gerar o código criptografado.', true);
+  }
+}
+
+async function importOpponentCode(code) {
+  if (!code) {
+    hasValidOpponentCode = false;
+    importedOpponentData = null;
+    UserManager.clearOpponentData();
+    setMatchCodeStatus('Cole o código do adversário para importar automaticamente.', false);
+    updatePlayButton();
+    return;
+  }
+
+  try {
+    const payload = await decryptMatchCode(code);
+    const opponentTeam = buildPokemonTeamFromIds(payload.teamIds || []);
+    if (!payload.nickname || opponentTeam.length !== 6) {
+      throw new Error('Código inválido');
+    }
+
+    importedOpponentData = UserManager.setOpponentData({
+      nickname: payload.nickname,
+      team: opponentTeam,
+      source: 'code'
+    });
+    hasValidOpponentCode = true;
+
+    setMatchCodeStatus('Código do adversário importado automaticamente com sucesso.', false);
+    updatePlayButton();
+  } catch (error) {
+    hasValidOpponentCode = false;
+    importedOpponentData = null;
+    UserManager.clearOpponentData();
+    setMatchCodeStatus('Código inválido ou incompleto.', true);
+    updatePlayButton();
+  }
+}
+
+function setMatchCodeStatus(message, isError) {
+  const status = document.getElementById('match-code-status');
+  if (!status) return;
+  status.textContent = message;
+  status.style.color = isError ? '#ff8f8f' : '#90EE90';
+}
+
+function buildPokemonTeamFromIds(teamIds) {
+  const allPokemon = cachedAllPokemon.length ? cachedAllPokemon : getAllPokemon();
+  return teamIds
+    .map(id => allPokemon.find(pokemon => String(pokemon.id) === String(id)))
+    .filter(Boolean);
+}
+
+async function encryptMatchCode(payload) {
+  const encodedPayload = new TextEncoder().encode(JSON.stringify(payload));
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveMatchCodeKey(salt);
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encodedPayload);
+  return `${MATCH_CODE_PREFIX}.${toBase64Url(salt)}.${toBase64Url(iv)}.${toBase64Url(new Uint8Array(encrypted))}`;
+}
+
+async function decryptMatchCode(code) {
+  const parts = code.split('.');
+  if (parts.length !== 4 || parts[0] !== MATCH_CODE_PREFIX) {
+    throw new Error('Formato inválido');
+  }
+
+  const salt = fromBase64Url(parts[1]);
+  const iv = fromBase64Url(parts[2]);
+  const encrypted = fromBase64Url(parts[3]);
+  const key = await deriveMatchCodeKey(salt);
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
+  return JSON.parse(new TextDecoder().decode(decrypted));
+}
+
+async function deriveMatchCodeKey(salt) {
+  const baseKey = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(MATCH_CODE_SECRET),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 120000,
+      hash: 'SHA-256'
+    },
+    baseKey,
+    {
+      name: 'AES-GCM',
+      length: 256
+    },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+function toBase64Url(bytes) {
+  const binary = Array.from(bytes, byte => String.fromCharCode(byte)).join('');
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function fromBase64Url(value) {
+  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+  const padding = '='.repeat((4 - (normalized.length % 4)) % 4);
+  const binary = atob(normalized + padding);
+  return Uint8Array.from(binary, char => char.charCodeAt(0));
+}
+
 function setupSelectorButtons() {
   document.getElementById('random-team-btn').addEventListener('click', () => {
     const all = cachedAllPokemon.length ? cachedAllPokemon : getAllPokemon();
@@ -58,6 +268,7 @@ function setupSelectorButtons() {
     loadTeamDisplay();
     updatePlayButton();
     refreshPlayerStats();
+    refreshEncryptedMatchCode();
     if (renderPokemonDropdown) renderPokemonDropdown();
   });
 
@@ -66,6 +277,7 @@ function setupSelectorButtons() {
     loadTeamDisplay();
     updatePlayButton();
     refreshPlayerStats();
+    refreshEncryptedMatchCode();
     if (renderPokemonDropdown) renderPokemonDropdown();
   });
 }
@@ -108,6 +320,7 @@ function setupPokemonSearch() {
           loadTeamDisplay();
           updatePlayButton();
           refreshPlayerStats();
+          refreshEncryptedMatchCode();
         }
       };
       fragment.appendChild(item);
@@ -240,6 +453,7 @@ function loadTeamDisplay() {
       loadTeamDisplay();
       updatePlayButton();
       refreshPlayerStats();
+      refreshEncryptedMatchCode();
       if (renderPokemonDropdown) {
         renderPokemonDropdown();
       }
@@ -323,6 +537,7 @@ function reorderTeam(fromIndex, toIndex) {
   loadTeamDisplay();
   updatePlayButton();
   refreshPlayerStats();
+  refreshEncryptedMatchCode();
   if (renderPokemonDropdown) {
     renderPokemonDropdown();
   }
@@ -330,12 +545,39 @@ function reorderTeam(fromIndex, toIndex) {
 
 function updatePlayButton() {
   const playBtn = document.getElementById('play-btn');
+  const resumeBtn = document.getElementById('resume-match-btn');
+  const opponentCodeInput = document.getElementById('opponent-match-code');
   const team = UserManager.getTeam();
+  const playerCode = UserManager.getPlayerCode();
+  const canResume = UserManager.hasActiveMatchForPlayer(playerCode);
+  const typedCode = opponentCodeInput?.value?.trim() || '';
+  const hasValidTypedCode = Boolean(typedCode)
+    && hasValidOpponentCode
+    && importedOpponentData
+    && Array.isArray(importedOpponentData.team)
+    && importedOpponentData.team.length === 6;
+  const canPlay = team.length === 6 && hasValidTypedCode;
+
+  const hasOpponentName = Boolean(importedOpponentData?.nickname)
+    && Array.isArray(importedOpponentData?.team)
+    && importedOpponentData.team.length === 6;
+
+  if (hasOpponentName) {
+    playBtn.textContent = `► JOGAR CONTRA ${importedOpponentData.nickname.toUpperCase()} ◄`;
+  } else {
+    playBtn.textContent = '► J O G A R ◄';
+  }
+
   if (team.length === 6) {
     playBtn.style.display = 'block';
-    playBtn.disabled = false;
+    playBtn.disabled = !canPlay;
   } else {
     playBtn.style.display = 'block';
     playBtn.disabled = true;
+  }
+
+  if (resumeBtn) {
+    resumeBtn.style.display = 'block';
+    resumeBtn.disabled = !canResume;
   }
 }

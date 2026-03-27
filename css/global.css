@@ -281,6 +281,10 @@ button:disabled {
     color: #ffffff;
 }
 
+.is-hidden {
+    display: none;
+}
+
 /* Scrollbar para telas da Pokédex */
 .pokedex-screen-left::-webkit-scrollbar {
     width: 6px;
