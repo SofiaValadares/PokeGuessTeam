@@ -123,6 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNotes();
   setupFinishMatch();
   evaluateMatchState();
+
+  // Salvar estado ao sair da página
+  window.addEventListener('beforeunload', () => {
+    persistNotes();
+  });
+  window.addEventListener('pagehide', () => {
+    persistNotes();
+  });
 });
 
 function setupHeader(player) {
