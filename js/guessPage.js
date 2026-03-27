@@ -157,7 +157,7 @@ function renderEnemyTeamCards() {
 
     const guessedPokemon = getPokemonById(slot.confirmedGuessId || slot.selectedGuessId);
     const squareLabel = guessedPokemon
-      ? `<img class="enemy-square-sprite" src="${guessedPokemon.spriteDizzy}" alt="${guessedPokemon.name}" loading="lazy" decoding="async">`
+      ? `<img class="enemy-square-sprite" src="${guessedPokemon.sprite}" alt="${guessedPokemon.name}" loading="lazy" decoding="async">`
       : 'CHUTAR';
 
     card.innerHTML = `
@@ -515,8 +515,6 @@ function resolveMoodFromState(slotState) {
 }
 
 function resolveMoodSprite(pokemon, mood) {
-  if (mood === 'dizzy') return pokemon.spriteDizzy || pokemon.sprite;
-  if (mood === 'sad') return pokemon.spriteSad || pokemon.sprite;
   return pokemon.sprite;
 }
 
