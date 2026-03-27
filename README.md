@@ -39,6 +39,21 @@ Fluxo principal atual:
 5. Clique em **Jogar** para iniciar nova partida.
 6. Use **Voltar para Partida** para retomar uma partida salva em memória local.
 
+## Deploy no Vercel
+
+Este projeto está preparado para deploy como site estático no Vercel.
+
+### Configuração aplicada
+
+- Arquivo [vercel.json](vercel.json) com reescritas para:
+   - `/` -> `index.html`
+   - `/register` -> `register.html`
+   - `/guess` -> `guess.html`
+
+### Observação
+
+- O jogo usa `localStorage`; o estado da partida e dados de jogador ficam salvos por navegador/dispositivo.
+
 ## Funcionalidades principais implementadas
 
 - Cadastro e perfil de treinador com estatísticas locais.
