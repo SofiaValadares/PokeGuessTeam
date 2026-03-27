@@ -15,7 +15,8 @@ body.guess-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(3px);
   padding: 2vh;
 }
 
@@ -25,24 +26,26 @@ body.guess-page {
 
 .start-turn-modal-card {
   width: min(46vh, 92vw);
-  border: 0.15vh solid #78C8F0;
+  border: 0.2vh solid #78C8F0;
   border-radius: 1vh;
-  background: linear-gradient(180deg, rgba(0, 37, 80, 0.96) 0%, rgba(0, 21, 48, 0.96) 100%);
-  box-shadow: 0 0.8vh 2vh rgba(0, 0, 0, 0.45);
-  padding: 1.2vh;
+  background: linear-gradient(135deg, #001530 0%, #002550 100%);
+  box-shadow: 0 0 2.2vh rgba(120, 200, 240, 0.35), 0 1vh 3vh rgba(0, 0, 0, 0.6);
+  padding: 1.4vh;
 }
 
 .start-turn-modal-card h4 {
   margin: 0;
   color: #ffff00;
-  font-size: 1.1vh;
+  font-size: 1.2vh;
   font-family: 'Pixelify Sans', sans-serif;
+  text-shadow: 0 0 0.7vh rgba(255, 255, 0, 0.35);
 }
 
 .start-turn-modal-card p {
-  margin: 0.55vh 0 0.9vh;
-  color: #d6e8f5;
-  font-size: 0.9vh;
+  margin: 0.65vh 0 1vh;
+  color: #cccccc;
+  font-size: 0.92vh;
+  line-height: 1.45;
 }
 
 .start-turn-actions {

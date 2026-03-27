@@ -69,6 +69,11 @@ class PlayerRegistration {
   }
 
   setupEventListeners() {
+    const deleteModal = document.getElementById('delete-modal');
+    if (deleteModal) {
+      deleteModal.classList.add('is-hidden');
+    }
+
     // Avatar button selection
     document.querySelectorAll('.avatar-button').forEach(button => {
       button.addEventListener('click', (e) => this.selectAvatar(e.target.closest('.avatar-button')));
@@ -94,7 +99,10 @@ class PlayerRegistration {
     const cancelBtn = document.getElementById('modal-cancel-btn');
     if (cancelBtn) {
       cancelBtn.addEventListener('click', () => {
-        document.getElementById('delete-modal').style.display = 'none';
+        const modal = document.getElementById('delete-modal');
+        if (modal) {
+          modal.classList.add('is-hidden');
+        }
       });
     }
 
@@ -108,7 +116,7 @@ class PlayerRegistration {
     if (modalOverlay) {
       modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
-          modalOverlay.style.display = 'none';
+          modalOverlay.classList.add('is-hidden');
         }
       });
     }
@@ -182,7 +190,7 @@ class PlayerRegistration {
   handleLogout() {
     const modal = document.getElementById('delete-modal');
     if (modal) {
-      modal.style.display = 'flex';
+      modal.classList.remove('is-hidden');
     }
   }
 
@@ -194,7 +202,7 @@ class PlayerRegistration {
     this.showMessage('✓ Perfil deletado! Redirecionando...', 'success');
     const modal = document.getElementById('delete-modal');
     if (modal) {
-      modal.style.display = 'none';
+      modal.classList.add('is-hidden');
     }
     setTimeout(() => {
       window.location.href = 'register.html';
