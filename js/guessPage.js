@@ -13,19 +13,69 @@ const TYPE_COLORS = {
   Ghost: '#705898',
   Fairy: '#EE99AC'
 };
-const COLOR_OPTIONS = ['Qualquer', '#78C850', '#F08030', '#78C8F0'];
+const COLOR_OPTIONS = ['Qualquer', 'green', 'orange', 'blue', 'purple', 'yellow', 'gray', 'brown', 'pink', 'red', 'black', 'white'];
 const COLOR_LABELS = {
+  green: 'Verde',
+  orange: 'Laranja',
+  blue: 'Azul',
+  purple: 'Roxo',
+  yellow: 'Amarelo',
+  gray: 'Cinza',
+  brown: 'Marrom',
+  pink: 'Rosa',
+  red: 'Vermelho',
+  black: 'Preto',
+  white: 'Branco',
   '#78C850': 'Verde',
   '#F08030': 'Laranja',
-  '#78C8F0': 'Azul'
+  '#78C8F0': 'Azul',
+  '#A040A0': 'Roxo',
+  '#F8D030': 'Amarelo',
+  '#A8A8A8': 'Cinza',
+  '#A07850': 'Marrom',
+  '#EE99AC': 'Rosa',
+  '#C03028': 'Vermelho',
+  '#3a3a3a': 'Preto',
+  '#f0f0f0': 'Branco',
+  '#B8B8D0': 'Cinza',
+  '#A8A878': 'Cinza',
+  '#B8A038': 'Marrom',
+  '#705848': 'Marrom',
+  '#705898': 'Roxo',
+  '#E0C068': 'Marrom',
+  '#A8B820': 'Verde'
+};
+
+const LEGACY_HEX_TO_COLOR_NAME = {
+  '#78C850': 'green',
+  '#F08030': 'orange',
+  '#78C8F0': 'blue',
+  '#A040A0': 'purple',
+  '#F8D030': 'yellow',
+  '#A8A8A8': 'gray',
+  '#A07850': 'brown',
+  '#EE99AC': 'pink',
+  '#C03028': 'red',
+  '#3a3a3a': 'black',
+  '#f0f0f0': 'white',
+  '#B8B8D0': 'gray',
+  '#A8A878': 'gray',
+  '#B8A038': 'brown',
+  '#705848': 'brown',
+  '#705898': 'purple',
+  '#E0C068': 'brown',
+  '#A8B820': 'green'
 };
 
 const STORAGE_KEY_GUESS = 'poketeamguess_match_notes';
+const NOTES_PERSIST_DEBOUNCE_MS = 180;
 
 const state = {
   selectedEnemySlot: null,
   matchResult: null,
   allPokemon: [],
+  pokemonById: new Map(),
+  persistTimerId: null,
   enemySlots: Array.from({ length: 6 }, () => ({
     type1: 'Qualquer',
     type2: 'Qualquer',
@@ -62,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   state.allPokemon = getAllPokemon();
+  state.pokemonById = new Map(state.allPokemon.map(pokemon => [String(pokemon.id), pokemon]));
   hydrateSavedNotes();
   setupHeader(player);
   setupBanner(player);
@@ -88,7 +139,11 @@ function setupBanner(player) {
   };
 
   playerAvatar.src = `assets/players/${backAvatarMap[player.avatar] || player.avatar}`;
+  playerAvatar.decoding = 'async';
+  playerAvatar.fetchPriority = 'high';
   opponentAvatar.src = `assets/players/${enemyAvatar}`;
+  opponentAvatar.decoding = 'async';
+  opponentAvatar.fetchPriority = 'high';
 }
 
 function renderEnemyTeamCards() {
@@ -100,9 +155,9 @@ function renderEnemyTeamCards() {
     const card = document.createElement('div');
     card.className = `enemy-slot-card ${state.selectedEnemySlot === index ? 'selected' : ''}`;
 
-    const guessedPokemon = state.allPokemon.find(p => String(p.id) === String(slot.confirmedGuessId));
+    const guessedPokemon = getPokemonById(slot.confirmedGuessId || slot.selectedGuessId);
     const squareLabel = guessedPokemon
-      ? `<img class="enemy-square-sprite" src="${guessedPokemon.spriteDizzy || guessedPokemon.sprite}" alt="${guessedPokemon.name}">`
+      ? `<img class="enemy-square-sprite" src="${guessedPokemon.spriteDizzy}" alt="${guessedPokemon.name}" loading="lazy" decoding="async">`
       : 'CHUTAR';
 
     card.innerHTML = `
@@ -166,15 +221,11 @@ function bindEnemyCardEvents() {
         if (state.selectedEnemySlot === slotIndex) {
           updateCandidateGrid();
         }
-        renderEnemyTeamCards();
-        persistNotes();
+        schedulePersistNotes();
       });
       field.addEventListener('change', (event) => {
         const slotIndex = Number.parseInt(event.currentTarget.dataset.slotIndex, 10);
         state.enemySlots[slotIndex][key] = event.currentTarget.value;
-        if (state.selectedEnemySlot === slotIndex) {
-          updateCandidateGrid();
-        }
         renderEnemyTeamCards();
         persistNotes();
       });
@@ -239,7 +290,7 @@ function setupGuessActions() {
     }
 
     slotData.confirmedGuessId = slotData.selectedGuessId;
-    const pokemon = state.allPokemon.find(p => String(p.id) === String(slotData.confirmedGuessId));
+    const pokemon = getPokemonById(slotData.confirmedGuessId);
     setGuessFeedback(`Chute salvo para Slot ${state.selectedEnemySlot + 1}: ${pokemon?.name || 'Pokémon'}.`, false);
 
     state.selectedEnemySlot = null;
@@ -333,7 +384,7 @@ function renderCandidateGrid(candidates, selectedGuessId) {
     const card = document.createElement('button');
     card.className = `candidate-card ${String(pokemon.id) === String(selectedGuessId) ? 'selected' : ''}`;
     card.innerHTML = `
-      <img src="${pokemon.sprite}" alt="${pokemon.name}">
+      <img src="${pokemon.sprite}" alt="${pokemon.name}" loading="lazy" decoding="async">
       <span>${pokemon.name}</span>
     `;
     card.addEventListener('click', () => {
@@ -393,7 +444,7 @@ function renderSelfTeam(team) {
 
     card.innerHTML = `
       <div class="card-left-col">
-        <img class="self-slot-sprite ${slotState.pokemonGuessed ? 'pokemon-guessed' : ''}" data-self-index="${index}" src="${resolveMoodSprite(pokemon, mood)}" alt="${pokemon.name}" title="Clique para ${slotState.pokemonGuessed ? 'desmarcar' : 'marcar'} acerto do Pokémon">
+        <img class="self-slot-sprite ${slotState.pokemonGuessed ? 'pokemon-guessed' : ''}" data-self-index="${index}" src="${resolveMoodSprite(pokemon, mood)}" alt="${pokemon.name}" title="Clique para ${slotState.pokemonGuessed ? 'desmarcar' : 'marcar'} acerto do Pokémon" loading="lazy" decoding="async">
       </div>
       <div class="card-right-col">
         <button class="self-info-btn ${guessed.has('type1') ? 'guessed' : ''}" data-self-index="${index}" data-self-key="type1">Tipo Primário:
@@ -452,7 +503,7 @@ function bindSelfTeamEvents(team) {
       const index = Number.parseInt(event.currentTarget.dataset.selfIndex, 10);
       const field = event.currentTarget.dataset.selfField;
       state.selfSlots[index][field] = event.currentTarget.value;
-      persistNotes();
+      schedulePersistNotes();
     });
   });
 }
@@ -480,11 +531,12 @@ function renderOptions(options, selectedValue) {
 }
 
 function renderColorOptions(selectedValue) {
-  const options = ['Qualquer', ...Object.keys(COLOR_LABELS)];
+  const options = COLOR_OPTIONS;
+  const normalizedSelected = normalizeLegacyColorValue(selectedValue);
   return options
     .map(option => {
-      const text = option === 'Qualquer' ? 'Qualquer' : `${COLOR_LABELS[option]} (${option})`;
-      return `<option value="${option}" ${option === selectedValue ? 'selected' : ''}>${text}</option>`;
+      const text = option === 'Qualquer' ? 'Qualquer' : (COLOR_LABELS[option] || option);
+      return `<option value="${option}" ${option === normalizedSelected ? 'selected' : ''}>${text}</option>`;
     })
     .join('');
 }
@@ -495,6 +547,7 @@ function setupNotes() {
 
   notesInput.addEventListener('input', (event) => {
     state.freeNotes = event.target.value;
+    schedulePersistNotes();
   });
 
   document.getElementById('save-notes-btn').addEventListener('click', () => {
@@ -575,11 +628,32 @@ function renderMatchResult() {
 }
 
 function persistNotes() {
+  if (state.persistTimerId) {
+    clearTimeout(state.persistTimerId);
+    state.persistTimerId = null;
+  }
+
   localStorage.setItem(STORAGE_KEY_GUESS, JSON.stringify({
     enemySlots: state.enemySlots,
     selfSlots: state.selfSlots,
     freeNotes: state.freeNotes
   }));
+}
+
+function schedulePersistNotes() {
+  if (state.persistTimerId) {
+    clearTimeout(state.persistTimerId);
+  }
+
+  state.persistTimerId = setTimeout(() => {
+    state.persistTimerId = null;
+    persistNotes();
+  }, NOTES_PERSIST_DEBOUNCE_MS);
+}
+
+function getPokemonById(id) {
+  if (!id) return null;
+  return state.pokemonById.get(String(id)) || null;
 }
 
 function hydrateSavedNotes() {
@@ -616,7 +690,8 @@ function normalizeEnemySlot(slot) {
   const normalizedType1 = normalizeSelectableValue(source.type1 ?? legacyFilters.type1, TYPE_OPTIONS);
   const normalizedType2 = normalizeSelectableValue(source.type2 ?? legacyFilters.type2, TYPE_OPTIONS);
   const normalizedGeneration = normalizeSelectableValue(source.generation ?? legacyFilters.generation, ['Qualquer', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
-  const normalizedColor = normalizeSelectableValue(source.color ?? legacyFilters.color, ['Qualquer', ...Object.keys(COLOR_LABELS)]);
+  const legacyColor = source.color ?? legacyFilters.color;
+  const normalizedColor = normalizeSelectableValue(normalizeLegacyColorValue(legacyColor), COLOR_OPTIONS);
 
   return {
     type1: normalizedType1,
@@ -630,6 +705,13 @@ function normalizeEnemySlot(slot) {
     selectedGuessId: source.selectedGuessId ?? '',
     confirmedGuessId: source.confirmedGuessId ?? ''
   };
+}
+
+function normalizeLegacyColorValue(value) {
+  if (value === null || value === undefined) return 'Qualquer';
+  const parsed = String(value).trim();
+  if (!parsed) return 'Qualquer';
+  return LEGACY_HEX_TO_COLOR_NAME[parsed] || parsed;
 }
 
 function normalizeSelectableValue(value, allowedOptions) {

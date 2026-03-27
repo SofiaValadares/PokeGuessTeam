@@ -3,11 +3,17 @@
 let currentSelectedSlot = null;
 let draggedSlotIndex = null;
 let renderPokemonDropdown = null;
+let searchDebounceTimer = null;
+let cachedAllPokemon = [];
+
+const SEARCH_DEBOUNCE_MS = 120;
+const MAX_DROPDOWN_RESULTS_WHEN_EMPTY = 60;
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!UserManager.isPlayerRegistered()) {
     window.location.href = 'register.html';
   } else {
+    cachedAllPokemon = getAllPokemon();
     const player = UserManager.getPlayerData();
     document.getElementById('welcome-message').textContent = player.nickname;
     document.getElementById('main-title').textContent = `TREINADOR ${player.nickname.toUpperCase()}`;
@@ -45,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setupSelectorButtons() {
   document.getElementById('random-team-btn').addEventListener('click', () => {
-    const all = getAllPokemon();
+    const all = cachedAllPokemon.length ? cachedAllPokemon : getAllPokemon();
     const shuffled = [...all].sort(() => Math.random() - 0.5);
     const randomTeam = shuffled.slice(0, 6);
     UserManager.saveTeam(randomTeam);
@@ -67,6 +73,8 @@ function setupSelectorButtons() {
 function setupPokemonSearch() {
   const searchInput = document.getElementById('pokemon-search');
   const dropdown = document.getElementById('pokemon-search-dropdown');
+  const allPokemon = cachedAllPokemon.length ? cachedAllPokemon : getAllPokemon();
+
   function renderDropdown() {
     const team = UserManager.getTeam();
     const isFull = team.length >= 6;
@@ -76,14 +84,20 @@ function setupPokemonSearch() {
       adjustPokemonDropdownHeight();
       return;
     }
-    const allPokemon = getAllPokemon();
     const searchTerm = searchInput.value.trim().toLowerCase();
-    const filtered = allPokemon.filter(p => p.name.toLowerCase().includes(searchTerm));
+    let filtered = allPokemon.filter(p => p.name.toLowerCase().includes(searchTerm));
+    if (!searchTerm) {
+      filtered = filtered.slice(0, MAX_DROPDOWN_RESULTS_WHEN_EMPTY);
+    }
+
+    const fragment = document.createDocumentFragment();
+
     filtered.forEach(pokemon => {
       if (team.some(t => t && t.id === pokemon.id)) return;
+
       const item = document.createElement('div');
       item.className = 'pokemon-search-item';
-      item.innerHTML = `<img src="${pokemon.sprite}" alt="${pokemon.name}"><span class="name">${pokemon.name}</span>`;
+      item.innerHTML = `<img src="${pokemon.sprite}" alt="${pokemon.name}" loading="lazy" decoding="async"><span class="name">${pokemon.name}</span>`;
       item.onclick = () => {
         const team = UserManager.getTeam();
         if (team.length < 6) {
@@ -96,12 +110,29 @@ function setupPokemonSearch() {
           refreshPlayerStats();
         }
       };
-      dropdown.appendChild(item);
+      fragment.appendChild(item);
     });
+
+    dropdown.appendChild(fragment);
+
+    if (!searchTerm && filtered.length >= MAX_DROPDOWN_RESULTS_WHEN_EMPTY) {
+      const hint = document.createElement('div');
+      hint.className = 'pokemon-search-item';
+      hint.textContent = `Mostrando ${MAX_DROPDOWN_RESULTS_WHEN_EMPTY} resultados. Digite para filtrar.`;
+      hint.style.cursor = 'default';
+      dropdown.appendChild(hint);
+    }
+
     adjustPokemonDropdownHeight();
   }
+
+  function scheduleRenderDropdown() {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(renderDropdown, SEARCH_DEBOUNCE_MS);
+  }
+
   renderPokemonDropdown = renderDropdown;
-  searchInput.addEventListener('input', renderDropdown);
+  searchInput.addEventListener('input', scheduleRenderDropdown);
   renderDropdown();
 }
 
@@ -184,7 +215,7 @@ function loadTeamDisplay() {
       slot.setAttribute('draggable', 'true');
       slot.innerHTML = `
         <div class="team-slot-pokemon">
-          <img src="${pokemon.sprite}" alt="${pokemon.name}" onerror="this.src='${pokemon.sprite}'">
+          <img src="${pokemon.sprite}" alt="${pokemon.name}" loading="lazy" decoding="async" onerror="this.src='${pokemon.sprite}'">
           <div class="name">${pokemon.name}</div>
         </div>
         <button class="remove-pokemon-btn" title="Remover" data-index="${index}">-</button>
