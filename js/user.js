@@ -2,6 +2,7 @@
 
 class UserManager {
   static STORAGE_KEY = 'poketeamguess_player';
+  static BASE_LEVEL_XP = 100;
 
   /**
    * Obtém dados do jogador armazenados
@@ -40,6 +41,8 @@ class UserManager {
         level: playerData.level || 1,
         experience: playerData.experience || 0,
         matchesWon: playerData.matchesWon || 0,
+        matchesLost: playerData.matchesLost || 0,
+        matchesPlayed: playerData.matchesPlayed || 0,
         team: playerData.team || [],
         lastTeam: playerData.lastTeam || []
       };
@@ -209,11 +212,10 @@ class UserManager {
   static addExperience(xp) {
     const playerData = this.getPlayerData();
     if (playerData) {
-      const newXp = playerData.experience + xp;
-      const newLevel = Math.floor(newXp / 100) + 1;
+      const progress = this.applyExperienceGain(playerData.level, playerData.experience, xp);
       return this.updatePlayerData({
-        experience: newXp,
-        level: newLevel
+        experience: progress.experience,
+        level: progress.level
       });
     }
     return null;
@@ -298,10 +300,108 @@ class UserManager {
     const playerData = this.getPlayerData();
     if (playerData) {
       return this.updatePlayerData({
-        matchesWon: (playerData.matchesWon || 0) + 1
+        matchesWon: (playerData.matchesWon || 0) + 1,
+        matchesPlayed: (playerData.matchesPlayed || 0) + 1
       });
     }
     return null;
+  }
+
+  /**
+   * Adiciona uma derrota ao jogador
+   * @returns {Object|null}
+   */
+  static addMatchLoss() {
+    const playerData = this.getPlayerData();
+    if (playerData) {
+      return this.updatePlayerData({
+        matchesLost: (playerData.matchesLost || 0) + 1,
+        matchesPlayed: (playerData.matchesPlayed || 0) + 1
+      });
+    }
+    return null;
+  }
+
+  /**
+   * Registra o resultado de uma partida e aplica progressão
+   * @param {('victory'|'defeat'|'giveup')} result
+   * @returns {Object|null}
+   */
+  static registerMatchResult(result) {
+    const playerData = this.getPlayerData();
+    if (!playerData) return null;
+
+    const currentXp = Number(playerData.experience || 0);
+    const currentWins = Number(playerData.matchesWon || 0);
+    const currentLosses = Number(playerData.matchesLost || 0);
+    const currentPlayed = Number(playerData.matchesPlayed || 0);
+
+    let xpEarned = 0;
+    let nextWins = currentWins;
+    let nextLosses = currentLosses;
+
+    if (result === 'victory') {
+      xpEarned = 60;
+      nextWins += 1;
+    } else if (result === 'defeat') {
+      xpEarned = 25;
+      nextLosses += 1;
+    } else if (result === 'giveup') {
+      xpEarned = 0;
+      nextLosses += 1;
+    } else {
+      return null;
+    }
+
+    const progress = this.applyExperienceGain(playerData.level, currentXp, xpEarned);
+
+    return this.updatePlayerData({
+      experience: progress.experience,
+      level: progress.level,
+      matchesWon: nextWins,
+      matchesLost: nextLosses,
+      matchesPlayed: currentPlayed + 1
+    });
+  }
+
+  /**
+   * Calcula o XP necessário para passar do nível atual para o próximo
+   * Nível 1->2: 100 | 2->3: 200 | 3->4: 400 ...
+   * @param {Number} currentLevel
+   * @returns {Number}
+   */
+  static getXpRequiredForNextLevel(currentLevel) {
+    const safeLevel = Math.max(1, Number(currentLevel) || 1);
+    return this.BASE_LEVEL_XP * (2 ** (safeLevel - 1));
+  }
+
+  /**
+   * Aplica ganho de XP com reset ao subir de nível.
+   * Regra: ao alcançar o XP do próximo nível, sobe 1 nível e XP volta para 0.
+   * @param {Number} currentLevel
+   * @param {Number} currentXp
+   * @param {Number} gainedXp
+   * @returns {{level: Number, experience: Number}}
+   */
+  static applyExperienceGain(currentLevel, currentXp, gainedXp) {
+    const safeLevel = Math.max(1, Number(currentLevel) || 1);
+    const safeCurrentXp = Math.max(0, Number(currentXp) || 0);
+    const safeGain = Math.max(0, Number(gainedXp) || 0);
+
+    const requiredXp = this.getXpRequiredForNextLevel(safeLevel);
+    const updatedXp = safeCurrentXp + safeGain;
+
+    if (updatedXp >= requiredXp) {
+      return {
+        level: safeLevel + 1,
+        experience: 0
+      };
+    }
+
+    return {
+      level: safeLevel,
+      experience: updatedXp
+    };
   }
 
   /**
@@ -320,6 +420,9 @@ class UserManager {
   static getStats() {
     const playerData = this.getPlayerData();
     if (!playerData) return null;
+
+    const matchesPlayed = playerData.matchesPlayed || ((playerData.matchesWon || 0) + (playerData.matchesLost || 0));
+    const winRate = matchesPlayed > 0 ? Math.round(((playerData.matchesWon || 0) / matchesPlayed) * 100) : 0;
     
     return {
       nickname: playerData.nickname,
@@ -327,6 +430,9 @@ class UserManager {
       level: playerData.level,
       experience: playerData.experience,
       matchesWon: playerData.matchesWon || 0,
+      matchesLost: playerData.matchesLost || 0,
+      matchesPlayed,
+      winRate,
       teamSize: (playerData.team || []).length
     };
   }

@@ -29,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('edit-profile-btn').addEventListener('click', () => {
       window.location.href = 'register.html';
     });
+    document.getElementById('play-btn').addEventListener('click', () => {
+      if (!document.getElementById('play-btn').disabled) {
+        window.location.href = 'guess.html';
+      }
+    });
     document.getElementById('go-to-register-btn').style.display = 'none';
     updatePlayButton();
     document.querySelectorAll('.team-slot').forEach(slot => {
@@ -101,14 +106,22 @@ function setupPokemonSearch() {
 }
 
 function refreshPlayerStats() {
-  const player = UserManager.getPlayerData();
+  const stats = UserManager.getStats();
   const statsDisplay = document.getElementById('stats-display');
 
+  if (!stats) {
+    statsDisplay.style.display = 'none';
+    return;
+  }
+
   statsDisplay.innerHTML = `
-    <span>🏆 Vitórias: ${player.matchesWon || 0}</span>
-    <span>⭐ Nível: ${player.level}</span>
-    <span>✨ XP: ${player.experience}</span>
-    <span>🎯 Time: ${(player.team || []).length}/6</span>
+    <span>🏆 Vitórias: ${stats.matchesWon}</span>
+    <span>💥 Derrotas: ${stats.matchesLost}</span>
+    <span>🎮 Partidas: ${stats.matchesPlayed}</span>
+    <span>📊 Taxa de Vitória: ${stats.winRate}%</span>
+    <span>⭐ Nível: ${stats.level}</span>
+    <span>✨ XP: ${stats.experience}</span>
+    <span>🎯 Time: ${stats.teamSize}/6</span>
   `;
   statsDisplay.style.display = 'grid';
 }
