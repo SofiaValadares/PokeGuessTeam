@@ -67,15 +67,11 @@ const LEGACY_HEX_TO_COLOR_NAME = {
   '#A8B820': 'green'
 };
 
-const STORAGE_KEY_GUESS = 'poketeamguess_match_notes';
-const NOTES_PERSIST_DEBOUNCE_MS = 180;
-
 const state = {
   selectedEnemySlot: null,
   matchResult: null,
   allPokemon: [],
   pokemonById: new Map(),
-  persistTimerId: null,
   enemySlots: Array.from({ length: 6 }, () => ({
     type1: 'Qualquer',
     type2: 'Qualquer',
@@ -113,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   state.allPokemon = getAllPokemon();
   state.pokemonById = new Map(state.allPokemon.map(pokemon => [String(pokemon.id), pokemon]));
-  hydrateSavedNotes();
   setupHeader(player);
   setupBanner(player);
 
@@ -123,14 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNotes();
   setupFinishMatch();
   evaluateMatchState();
-
-  // Salvar estado ao sair da página
-  window.addEventListener('beforeunload', () => {
-    persistNotes();
-  });
-  window.addEventListener('pagehide', () => {
-    persistNotes();
-  });
 });
 
 function setupHeader(player) {
@@ -553,13 +540,11 @@ function setupNotes() {
 
   notesInput.addEventListener('input', (event) => {
     state.freeNotes = event.target.value;
-    schedulePersistNotes();
   });
 
   document.getElementById('save-notes-btn').addEventListener('click', () => {
-    persistNotes();
     const status = document.getElementById('notes-status');
-    status.textContent = 'Anotações salvas!';
+    status.textContent = 'Anotações salvas nesta sessão!';
     setTimeout(() => {
       status.textContent = '';
     }, 1200);
@@ -574,8 +559,6 @@ function setupFinishMatch() {
     if (!state.matchResult) return;
 
     UserManager.registerMatchResult(state.matchResult);
-
-    localStorage.removeItem(STORAGE_KEY_GUESS);
     window.location.href = 'index.html';
   });
 
@@ -584,8 +567,6 @@ function setupFinishMatch() {
     if (!confirmed) return;
 
     UserManager.registerMatchResult('giveup');
-
-    localStorage.removeItem(STORAGE_KEY_GUESS);
     window.location.href = 'index.html';
   });
 }
@@ -634,59 +615,14 @@ function renderMatchResult() {
 }
 
 function persistNotes() {
-  if (state.persistTimerId) {
-    clearTimeout(state.persistTimerId);
-    state.persistTimerId = null;
-  }
-
-  localStorage.setItem(STORAGE_KEY_GUESS, JSON.stringify({
-    enemySlots: state.enemySlots,
-    selfSlots: state.selfSlots,
-    freeNotes: state.freeNotes
-  }));
 }
 
 function schedulePersistNotes() {
-  if (state.persistTimerId) {
-    clearTimeout(state.persistTimerId);
-  }
-
-  state.persistTimerId = setTimeout(() => {
-    state.persistTimerId = null;
-    persistNotes();
-  }, NOTES_PERSIST_DEBOUNCE_MS);
 }
 
 function getPokemonById(id) {
   if (!id) return null;
   return state.pokemonById.get(String(id)) || null;
-}
-
-function hydrateSavedNotes() {
-  const raw = localStorage.getItem(STORAGE_KEY_GUESS);
-  if (!raw) return;
-
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed.enemySlots) && parsed.enemySlots.length === 6) {
-      state.enemySlots = parsed.enemySlots.map(normalizeEnemySlot);
-    }
-    if (Array.isArray(parsed.selfSlots) && parsed.selfSlots.length === 6) {
-      state.selfSlots = parsed.selfSlots.map(slot => ({
-        guessedInfoKeys: normalizeGuessedKeys(Array.isArray(slot.guessedInfoKeys) ? slot.guessedInfoKeys : []),
-        pokemonGuessed: Boolean(slot.pokemonGuessed),
-        weightGuessMin: slot.weightGuessMin || '',
-        weightGuessMax: slot.weightGuessMax || '',
-        heightGuessMin: slot.heightGuessMin || '',
-        heightGuessMax: slot.heightGuessMax || ''
-      }));
-    }
-    if (typeof parsed.freeNotes === 'string') {
-      state.freeNotes = parsed.freeNotes;
-    }
-  } catch (error) {
-    console.error('Falha ao restaurar anotações da partida', error);
-  }
 }
 
 function normalizeEnemySlot(slot) {
