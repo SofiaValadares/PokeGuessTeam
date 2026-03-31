@@ -1,19 +1,14 @@
 // Script extraído de index.html
 
+
 let currentSelectedSlot = null;
 let draggedSlotIndex = null;
 let renderPokemonDropdown = null;
 let searchDebounceTimer = null;
 let cachedAllPokemon = [];
-let importedOpponentData = null;
-let hasValidOpponentCode = false;
-let ownEncryptedMatchCode = '';
-let importCodeDebounceTimer = null;
 
 const SEARCH_DEBOUNCE_MS = 120;
 const MAX_DROPDOWN_RESULTS_WHEN_EMPTY = 60;
-const MATCH_CODE_SECRET = 'PokeTeamGuess::Exchange::2026';
-const MATCH_CODE_PREFIX = 'PTG1';
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!UserManager.isPlayerRegistered()) {
@@ -49,13 +44,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (playBtn.disabled) return;
       UserManager.clearMatchState();
       const playerName = UserManager.getPlayerData()?.nickname || '';
-      const opponentName = importedOpponentData?.nickname || '';
+      const opponentName = document.getElementById('opponent-name-input')?.value?.trim() || '';
       const params = new URLSearchParams({
         playerName,
         opponentName
       });
       window.location.href = `guess.html?${params.toString()}`;
     });
+    // Atualiza o botão ao digitar o nome do adversário
+    document.getElementById('opponent-name-input')?.addEventListener('input', updatePlayButton);
     resumeBtn.addEventListener('click', () => {
       if (resumeBtn.disabled) return;
       const savedMatch = UserManager.getMatchState();
@@ -546,33 +543,19 @@ function reorderTeam(fromIndex, toIndex) {
 function updatePlayButton() {
   const playBtn = document.getElementById('play-btn');
   const resumeBtn = document.getElementById('resume-match-btn');
-  const opponentCodeInput = document.getElementById('opponent-match-code');
+  const opponentNameInput = document.getElementById('opponent-name-input');
   const team = UserManager.getTeam();
   const playerCode = UserManager.getPlayerCode();
   const canResume = UserManager.hasActiveMatchForPlayer(playerCode);
-  const typedCode = opponentCodeInput?.value?.trim() || '';
-  const hasValidTypedCode = Boolean(typedCode)
-    && hasValidOpponentCode
-    && importedOpponentData
-    && Array.isArray(importedOpponentData.team)
-    && importedOpponentData.team.length === 6;
-  const canPlay = team.length === 6 && hasValidTypedCode;
+  const opponentName = opponentNameInput?.value?.trim() || '';
+  const canPlay = team.length === 6 && opponentName.length > 0;
 
-  const hasOpponentName = Boolean(importedOpponentData?.nickname)
-    && Array.isArray(importedOpponentData?.team)
-    && importedOpponentData.team.length === 6;
-
-  if (hasOpponentName) {
-    playBtn.textContent = `► JOGAR CONTRA ${importedOpponentData.nickname.toUpperCase()} ◄`;
-  } else {
-    playBtn.textContent = '► J O G A R ◄';
-  }
-
+  playBtn.textContent = '► J O G A R ◄';
+  playBtn.style.display = 'block';
+  playBtn.classList.remove('is-hidden');
   if (team.length === 6) {
-    playBtn.style.display = 'block';
     playBtn.disabled = !canPlay;
   } else {
-    playBtn.style.display = 'block';
     playBtn.disabled = true;
   }
 

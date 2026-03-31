@@ -113,8 +113,8 @@ const state = {
     weightGuessMax: '',
     heightGuessMin: '',
     heightGuessMax: ''
-  })),
-  freeNotes: ''
+    })),
+  // freeNotes removido
 };
 
 class RoundEntry {
@@ -183,54 +183,33 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const expectedPlayerCode = UserManager.getPlayerCode();
-  if (!expectedPlayerCode) {
-    window.location.href = 'index.html';
-    return;
-  }
-
   if (!routePlayerName || !routeOpponentName) {
     window.location.href = 'index.html';
     return;
   }
 
-  let opponentData = UserManager.getOpponentData();
   const savedMatch = UserManager.getMatchState();
-  const shouldResume = Boolean(savedMatch) && String(savedMatch?.playerCode || '') === expectedPlayerCode;
-
-  if (shouldResume) {
-    if ((!opponentData || !Array.isArray(opponentData.team) || opponentData.team.length !== 6) && savedMatch.opponentData) {
-      UserManager.setOpponentData(savedMatch.opponentData);
-      opponentData = UserManager.getOpponentData();
-    }
-  }
 
   if (!UserManager.isTeamComplete()) {
     window.location.href = 'index.html';
     return;
   }
 
-  if (!opponentData || !Array.isArray(opponentData.team) || opponentData.team.length !== 6) {
-    window.location.href = 'index.html';
-    return;
-  }
-
   state.allPokemon = getAllPokemon();
   state.pokemonById = new Map(state.allPokemon.map(pokemon => [String(pokemon.id), pokemon]));
-  state.opponentTeam = opponentData.team || [];
+  state.opponentTeam = [];
   state.myTrainerName = routePlayerName;
   state.opponentTrainerName = routeOpponentName;
-  if (shouldResume && savedMatch) {
+  if (savedMatch) {
     applySavedMatchState(savedMatch);
   }
   setupHeader(player);
   setupBanner(player);
   setupGuessActions();
   setupDynamicRequirementPanels();
-  setupNotes();
   setupFinishMatch();
 
-  if (!shouldResume) {
+  if (!savedMatch) {
     initializeTurnSystem();
   } else {
     hydrateMatchHistory(savedMatch);
@@ -276,9 +255,8 @@ function applySavedMatchState(savedMatch) {
     weightGuessMax: savedSelfSlots[index]?.weightGuessMax ?? '',
     heightGuessMin: savedSelfSlots[index]?.heightGuessMin ?? '',
     heightGuessMax: savedSelfSlots[index]?.heightGuessMax ?? ''
-  }));
+    }));
 
-  state.freeNotes = savedMatch.freeNotes || '';
   state.selectedEnemySlot = savedMatch.selectedEnemySlot ?? null;
   state.currentTurn = savedMatch.currentTurn || 'my';
   state.roundCounter = Number(savedMatch.roundCounter || 0);
@@ -355,42 +333,22 @@ function renderEnemyTeamCards() {
           <span class="row-label">Tipos:</span>
           <select class="enemy-field enemy-type1 ${slot.type1Locked ? 'solved-field' : ''} ${isLastWrongValue(slot, 'type1', slot.type1) ? 'wrong-last-guess' : ''}" data-slot-index="${index}" data-locked="${slot.type1Locked ? '1' : '0'}" ${slot.type1Locked ? 'disabled' : ''}>${renderOptions(TYPE_OPTIONS, slot.type1)}</select>
           <select class="enemy-field enemy-type2 ${slot.type2Locked ? 'solved-field' : ''} ${isLastWrongValue(slot, 'type2', slot.type2) ? 'wrong-last-guess' : ''}" data-slot-index="${index}" data-locked="${slot.type2Locked ? '1' : '0'}" ${slot.type2Locked ? 'disabled' : ''}>${renderOptions(SECONDARY_TYPE_OPTIONS, slot.type2)}</select>
-          <div class="type-tags-preview">
-            ${renderTypeTag(slot.type1)}
-            ${renderTypeTag(slot.type2)}
-          </div>
-          <div class="filter-validation-group">
-            ${renderValidationBadge(`1º: ${type1Validation.label}`, type1Validation.tone)}
-            ${renderValidationBadge(`2º: ${type2Validation.label}`, type2Validation.tone)}
-          </div>
         </div>
         <div class="card-row">
           <span class="row-label">Geração:</span>
           <select class="enemy-field enemy-generation ${slot.generationLocked ? 'solved-field' : ''} ${isLastWrongValue(slot, 'generation', slot.generation) ? 'wrong-last-guess' : ''}" data-slot-index="${index}" data-locked="${slot.generationLocked ? '1' : '0'}" ${slot.generationLocked ? 'disabled' : ''}>${renderOptions(['Qualquer', '1', '2', '3', '4', '5', '6', '7', '8', '9'], slot.generation)}</select>
-          ${renderValidationBadge(generationValidation.label, generationValidation.tone)}
         </div>
         <div class="card-row">
           <span class="row-label">Cor:</span>
           <select class="enemy-field enemy-color ${slot.colorLocked ? 'solved-field' : ''} ${isLastWrongValue(slot, 'color', slot.color) ? 'wrong-last-guess' : ''}" data-slot-index="${index}" data-locked="${slot.colorLocked ? '1' : '0'}" ${slot.colorLocked ? 'disabled' : ''}>${renderColorOptions(slot.color)}</select>
-          ${renderValidationBadge(colorValidation.label, colorValidation.tone)}
         </div>
         <div class="card-row value-guess-row">
           <span class="row-label">Peso:</span>
           <input class="enemy-field enemy-value-field enemy-weight-guess ${slot.weightLocked ? 'solved-field' : ''} ${isLastWrongValue(slot, 'weightGuess', slot.weightGuess) ? 'wrong-last-guess' : ''}" data-slot-index="${index}" data-locked="${slot.weightLocked ? '1' : '0'}" type="number" step="0.1" min="0" value="${escapeHtml(slot.weightGuess)}" placeholder="valor" ${slot.weightLocked ? 'disabled' : ''}>
-          ${renderValidationBadge(weightValidation.label, weightValidation.tone)}
-          <div class="numeric-hints">
-            ${renderNumericHintBadge('up', slot.weightRangeMin, 'kg')}
-            ${renderNumericHintBadge('down', slot.weightRangeMax, 'kg')}
-          </div>
         </div>
         <div class="card-row value-guess-row">
           <span class="row-label">Altura:</span>
           <input class="enemy-field enemy-value-field enemy-height-guess ${slot.heightLocked ? 'solved-field' : ''} ${isLastWrongValue(slot, 'heightGuess', slot.heightGuess) ? 'wrong-last-guess' : ''}" data-slot-index="${index}" data-locked="${slot.heightLocked ? '1' : '0'}" type="number" step="0.1" min="0" value="${escapeHtml(slot.heightGuess)}" placeholder="valor" ${slot.heightLocked ? 'disabled' : ''}>
-          ${renderValidationBadge(heightValidation.label, heightValidation.tone)}
-          <div class="numeric-hints">
-            ${renderNumericHintBadge('up', slot.heightRangeMin, 'm')}
-            ${renderNumericHintBadge('down', slot.heightRangeMax, 'm')}
-          </div>
         </div>
       </div>
     `;
@@ -416,48 +374,22 @@ function bindEnemyCardEvents() {
 
   const bindField = (selector, key) => {
     document.querySelectorAll(selector).forEach(field => {
-      field.addEventListener('input', (event) => {
-        if (!ensureMyTurn('Só é possível ajustar filtros na sua vez.')) return;
-        const slotIndex = Number.parseInt(event.currentTarget.dataset.slotIndex, 10);
-        const slotData = state.enemySlots[slotIndex];
-        if (isEnemyFieldLocked(slotData, key)) {
-          event.currentTarget.value = slotData[key];
-          return;
-        }
-        state.enemySlots[slotIndex][key] = event.currentTarget.value;
-        clearLastWrongIfChanged(slotData, key, event.currentTarget.value);
-        if (state.selectedEnemySlot === slotIndex) {
-          updateCandidateGrid();
-        }
-        schedulePersistNotes();
-      });
       field.addEventListener('change', (event) => {
         if (!ensureMyTurn('Só é possível ajustar filtros na sua vez.')) return;
-        const snapshot = createRoundSnapshot();
         const slotIndex = Number.parseInt(event.currentTarget.dataset.slotIndex, 10);
         const slotData = state.enemySlots[slotIndex];
-        if (isEnemyFieldLocked(slotData, key)) {
+        if (slotData[`${key}Locked`]) {
           event.currentTarget.value = slotData[key];
           return;
         }
-        const typedValue = event.currentTarget.value;
-        state.enemySlots[slotIndex][key] = typedValue;
-        if (key === 'type1' || key === 'type2' || key === 'generation' || key === 'color') {
-          const isCorrectDiscrete = updateEnemyDiscreteLock(slotIndex, key, typedValue);
-          markEnemyLastWrong(slotIndex, key, !isCorrectDiscrete && typedValue && typedValue !== 'Qualquer', typedValue);
-        }
-        if (key === 'weightGuess' || key === 'heightGuess') {
-          updateEnemyNumericRange(slotIndex, key, typedValue);
-          const updatedSlot = state.enemySlots[slotIndex];
-          const isExact = key === 'weightGuess' ? updatedSlot.weightLocked : updatedSlot.heightLocked;
-          markEnemyLastWrong(slotIndex, key, !isExact && typedValue !== '', typedValue);
-        }
-        const validationLabel = describeEnemyFilterAttempt(slotIndex, key, typedValue);
-        addRoundHistory('Minha', `Ajustar filtro (${labelForField(key)})`, `Slot ${slotIndex + 1}`, validationLabel, snapshot);
-        setGuessFeedback(`${labelForField(key)} do Slot ${slotIndex + 1}: ${validationLabel}.`, false);
-        advanceTurnAfterAction();
-        renderEnemyTeamCards();
+        const value = event.currentTarget.value;
+        slotData[key] = value;
+        slotData[`${key}Locked`] = true;
+        // Atualiza visual: campo verde e desabilitado
+        event.currentTarget.classList.add('solved-field');
+        event.currentTarget.disabled = true;
         persistNotes();
+        advanceTurnAfterAction();
       });
     });
   };
@@ -491,40 +423,21 @@ function setupGuessActions() {
   });
 
   document.getElementById('confirm-guess-btn').addEventListener('click', () => {
-    if (!ensureMyTurn('Só é possível confirmar chute na sua vez.')) return;
+    // Validação de chute removida conforme solicitado. Apenas registra o chute sem penalidade.
     if (state.selectedEnemySlot === null) {
       setGuessFeedback('Clique no quadrado do slot para tentar chute.', true);
       return;
     }
-
     const slotData = state.enemySlots[state.selectedEnemySlot];
     if (!slotData.selectedGuessId) {
       setGuessFeedback('Selecione um Pokémon antes de confirmar o chute.', true);
       return;
     }
-
     const snapshot = createRoundSnapshot();
-
     const guessedPokemon = getPokemonById(slotData.selectedGuessId);
-    const actualPokemon = state.opponentTeam[state.selectedEnemySlot] || null;
-    const isCorrectGuess = Boolean(actualPokemon) && String(actualPokemon.id) === String(slotData.selectedGuessId);
-
-    if (slotData.confirmedGuessId) {
-      setGuessFeedback(`O Slot ${state.selectedEnemySlot + 1} já foi acertado anteriormente.`, true);
-      return;
-    }
-
-    if (isCorrectGuess) {
-      slotData.confirmedGuessId = slotData.selectedGuessId;
-      setGuessFeedback(`Acertou! O Slot ${state.selectedEnemySlot + 1} é ${guessedPokemon?.name || 'esse Pokémon'}.`, false);
-      addRoundHistory('Minha', 'Chute Pokémon (certo)', `Slot ${state.selectedEnemySlot + 1}`, guessedPokemon?.name || 'Sem nome', snapshot);
-    } else {
-      state.skipMyNextTurn = true;
-      slotData.selectedGuessId = '';
-      setGuessFeedback(`Chute errado no Slot ${state.selectedEnemySlot + 1}. Você perde a próxima rodada.`, true);
-      addRoundHistory('Minha', 'Chute Pokémon (errado)', `Slot ${state.selectedEnemySlot + 1}`, guessedPokemon?.name || 'Sem nome', snapshot);
-    }
-
+    slotData.confirmedGuessId = slotData.selectedGuessId;
+    setGuessFeedback(`Chute registrado para o Slot ${state.selectedEnemySlot + 1}: ${guessedPokemon?.name || 'esse Pokémon'}.`, false);
+    addRoundHistory('Minha', 'Chute Pokémon', `Slot ${state.selectedEnemySlot + 1}`, guessedPokemon?.name || 'Sem nome', snapshot);
     state.selectedEnemySlot = null;
     advanceTurnAfterAction();
     renderEnemyTeamCards();
@@ -703,13 +616,9 @@ function renderSelfTeam(team) {
         <button class="self-info-btn ${guessed.has('color') ? 'guessed' : ''}" data-self-index="${index}" data-self-key="color">Cor: ${COLOR_LABELS[pokemon.primaryColor] || pokemon.primaryColor}</button>
         <div class="card-row range-row">
           <button class="self-info-btn ${guessed.has('weight') ? 'guessed' : ''}" data-self-index="${index}" data-self-key="weight">Peso: ${pokemon.weight}kg</button>
-          <input class="self-range" data-self-index="${index}" data-self-field="weightGuessMin" type="number" step="0.1" min="0" value="${escapeHtml(slotState.weightGuessMin)}" placeholder="mín chutado">
-          <input class="self-range" data-self-index="${index}" data-self-field="weightGuessMax" type="number" step="0.1" min="0" value="${escapeHtml(slotState.weightGuessMax)}" placeholder="máx chutado">
         </div>
         <div class="card-row range-row">
           <button class="self-info-btn ${guessed.has('height') ? 'guessed' : ''}" data-self-index="${index}" data-self-key="height">Altura: ${pokemon.height}m</button>
-          <input class="self-range" data-self-index="${index}" data-self-field="heightGuessMin" type="number" step="0.1" min="0" value="${escapeHtml(slotState.heightGuessMin)}" placeholder="mín chutado">
-          <input class="self-range" data-self-index="${index}" data-self-field="heightGuessMax" type="number" step="0.1" min="0" value="${escapeHtml(slotState.heightGuessMax)}" placeholder="máx chutado">
         </div>
       </div>
     `;
@@ -744,17 +653,23 @@ function bindSelfTeamEvents(team) {
 
   document.querySelectorAll('.self-info-btn').forEach(button => {
     button.addEventListener('click', (event) => {
-      if (!ensureOpponentTurn('Só é possível marcar acertos do adversário na vez dele.')) return;
+      // Permite registrar revelação de informação em qualquer turno
       const snapshot = createRoundSnapshot();
       const index = Number.parseInt(event.currentTarget.dataset.selfIndex, 10);
       const key = event.currentTarget.dataset.selfKey;
       const guessed = new Set(state.selfSlots[index].guessedInfoKeys || []);
-      if (guessed.has(key)) guessed.delete(key);
-      else guessed.add(key);
+      let actionLabel;
+      if (guessed.has(key)) {
+        guessed.delete(key);
+        actionLabel = 'Desmarcar revelação de informação';
+      } else {
+        guessed.add(key);
+        actionLabel = (state.currentTurn === 'my') ? 'Revelei uma informação' : 'Adversário revelou uma informação';
+      }
       state.selfSlots[index].guessedInfoKeys = Array.from(guessed);
       addRoundHistory(
-        'Adversário',
-        guessed.has(key) ? 'Adversário acertou informação' : 'Desmarcar acerto de informação',
+        state.currentTurn === 'my' ? 'Minha' : 'Adversário',
+        actionLabel,
         `Slot ${index + 1}`,
         labelForField(key),
         snapshot
@@ -1292,11 +1207,7 @@ function renderMatchResult() {
 }
 
 function persistNotes() {
-  const playerCode = UserManager.getPlayerCode();
-  if (!playerCode) return;
-
   const payload = {
-    playerCode,
     mode: 'active',
     enemySlots: JSON.parse(JSON.stringify(state.enemySlots)),
     selfSlots: JSON.parse(JSON.stringify(state.selfSlots)),
@@ -1316,8 +1227,7 @@ function persistNotes() {
     roundCounter: state.roundCounter,
     skipMyNextTurn: state.skipMyNextTurn,
     skipOpponentNextTurn: state.skipOpponentNextTurn,
-    matchResult: state.matchResult,
-    opponentData: UserManager.getOpponentData()
+    matchResult: state.matchResult
   };
 
   UserManager.setMatchState(payload);

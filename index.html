@@ -63,33 +63,17 @@
             </div>
           </div>
         </div>
-        <div class="play-actions">
-          <button class="pokedex-btn is-hidden" id="play-btn">► J O G A R ◄</button>
-          <button class="pokedex-btn is-hidden" id="resume-match-btn">↩ Voltar para Partida</button>
-        </div>
+        <input type="text" id="opponent-name-input" class="pokedex-input" placeholder="Digite o nome do adversário..." style="width:100%;" />
+        <button class="pokedex-btn" id="play-btn">► J O G A R ◄</button>
         <div class="rules-section">
           <h4 class="rules-title">📖 COMO JOGAR</h4>
-          <p class="rules-intro">Descubra o time de 6 Pokémon do seu adversário antes que ele descubra o seu!</p>
           <ul class="rules-list">
-            <li><span class="rules-badge rules-badge-blue">PERGUNTA</span>Faça uma pergunta sobre um Pokémon específico do time adversário.<br><em>Ex: "Seu 3º Pokémon é do tipo Água?"</em></li>
-            <li><span class="rules-badge rules-badge-yellow">CHUTE</span>Tente adivinhar diretamente qual Pokémon está em determinada posição.<br><em>Ex: "Acho que seu 3º Pokémon é o Squirtle!"</em></li>
-            <li><span class="rules-badge rules-badge-red">PENALIDADE</span>Se chutar e errar, você perde a sua próxima rodada. Pense bem antes de arriscar!</li>
+            <li>Durante o seu turno você pode executar duas ações:</li>
+            <li>1. Pedir para ser revelada uma informação de um dos pokémons do seu adversário</li>
+            <li>2. Chutar um pokémon do seu adversário</li>
+            <li><b>Cuidado ao chutar:</b> se você errar perde sua próxima vez, porém se acertar joga mais uma vez.</li>
           </ul>
-          <div class="match-setup-block">
-            <div class="match-code-top-row">
-              <h4 class="rules-title">🎮 MODO DA PARTIDA</h4>
-              <button class="selector-btn" id="copy-match-code-btn" disabled>Copiar Meu Código</button>
-            </div>
-            <div class="match-code-import-area" id="match-code-import-area">
-              <p class="rules-intro match-code-intro">Troque os códigos e cole o do adversário abaixo.</p>
 
-              <label class="match-code-label" for="opponent-match-code">Código do adversário</label>
-              <textarea id="opponent-match-code" class="match-code-box" placeholder="Cole aqui o código criptografado do adversário..."></textarea>
-            </div>
-            <div class="match-code-bottom-row">
-              <p class="match-code-status" id="match-code-status"></p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

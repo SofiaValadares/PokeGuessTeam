@@ -1,3 +1,57 @@
+/* ====== OPONENTE INPUT ====== */
+#opponent-name-input {
+  width: 100%;
+  padding: 0.8vh 1vh;
+  background: #001530;
+  color: #00ff00;
+  border: 0.15vh solid #90EE90;
+  border-radius: 0.5vh;
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.7vh;
+  margin-bottom: 1vh;
+  box-sizing: border-box;
+  text-align: center;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+#opponent-name-input::placeholder {
+  color: #90EE90;
+  opacity: 0.7;
+}
+#opponent-name-input:focus {
+  outline: none;
+  border-color: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+}
+
+/* ====== REGRAS ====== */
+.rules-section {
+  background: rgba(0, 21, 48, 0.7);
+  border-radius: 1vh;
+  border: 0.15vh solid #90EE90;
+  padding: 2vh 2vh 1.5vh 2vh;
+  margin-top: 2vh;
+  margin-bottom: 1vh;
+  box-shadow: 0 0.5vh 2vh rgba(0,0,0,0.15);
+}
+.rules-title {
+  color: #90EE90;
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 2.1vh;
+  margin-bottom: 1vh;
+  text-shadow: 0 0 0.5vh rgba(144, 238, 144, 0.5);
+}
+.rules-list {
+  list-style: decimal inside;
+  color: #fff;
+  font-size: 1.5vh;
+  font-family: 'Lexend', sans-serif;
+  margin: 0;
+  padding-left: 1vh;
+}
+.rules-list li {
+  margin-bottom: 0.7vh;
+  line-height: 1.5;
+}
 /* ====== BODY & PAGE ====== */
 body.index-page {
   display: flex;
