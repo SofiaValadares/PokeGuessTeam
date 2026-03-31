@@ -1,3 +1,10 @@
+import { requirePlayerProfile } from '../config/sectionManager.js';
+import { getPlayer } from '../store/manager/playerManager.js';
+import { removeOpponent } from '../store/manager/opponentManager.js';
+// Removido uso de MatchState e matchStateManager
+
+import { getMatchHistory, saveMatchHistory } from '../store/manager/matchHistoryManager.js';
+import { getAllPokemon } from './pokemonData.js';
 const TYPE_OPTIONS = ['Qualquer', 'Grass', 'Poison', 'Fire', 'Flying', 'Water', 'Ground', 'Fighting', 'Steel', 'Psychic', 'Dark', 'Ghost', 'Fairy'];
 const SECONDARY_TYPE_OPTIONS = ['Qualquer', 'Nenhum', ...TYPE_OPTIONS.filter(option => option !== 'Qualquer')];
 const TYPE_COLORS = {
@@ -117,16 +124,7 @@ const state = {
   // freeNotes removido
 };
 
-class RoundEntry {
-  constructor(round, turnLabel, action, slotLabel, resultLabel, snapshot = null) {
-    this.round = round;
-    this.turnLabel = turnLabel;
-    this.action = action;
-    this.slotLabel = slotLabel;
-    this.resultLabel = resultLabel;
-    this.snapshot = snapshot;
-  }
-}
+
 
 class MatchHistoryTable {
   constructor(tbodyElement) {
@@ -170,107 +168,82 @@ class MatchHistoryTable {
 }
 
 let matchHistoryTable = null;
+let matchHistory = getMatchHistory();
 let persistNotesTimer = null;
 
 const MATCH_PERSIST_DELAY_MS = 180;
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (!requirePlayerProfile()) return;
   const routePlayerName = getRoutePlayerName();
   const routeOpponentName = getRouteOpponentName();
-  const player = UserManager.getPlayerData();
+  const player = getPlayer();
   if (!player) {
-    window.location.href = 'register.html';
+    globalThis.location.href = 'register.html';
     return;
   }
 
   if (!routePlayerName || !routeOpponentName) {
-    window.location.href = 'index.html';
+    globalThis.location.href = 'index.html';
     return;
   }
 
-  const savedMatch = UserManager.getMatchState();
-
-  if (!UserManager.isTeamComplete()) {
-    window.location.href = 'index.html';
-    return;
-  }
+  // Não carrega mais MatchState do storage
+  // Se quiser validar time completo, implemente aqui usando player.team
 
   state.allPokemon = getAllPokemon();
   state.pokemonById = new Map(state.allPokemon.map(pokemon => [String(pokemon.id), pokemon]));
   state.opponentTeam = [];
   state.myTrainerName = routePlayerName;
   state.opponentTrainerName = routeOpponentName;
-  if (savedMatch) {
-    applySavedMatchState(savedMatch);
+  // Se quiser validar time completo, implemente aqui usando player.team
+  // Reconstrói estado do histórico
+  matchHistory = getMatchHistory(); // ATUALIZA a variável global
+  const rebuiltState = matchHistory.buildMatchState();
+  applySavedMatchState(rebuiltState);
+
+  // Preencher tabela de histórico visual com histórico salvo
+  if (matchHistoryTable) {
+    matchHistoryTable.entries = matchHistory.entries.map(entry => ({ ...entry }));
+    matchHistoryTable.render();
+    matchHistoryTable.scrollToBottom();
   }
+
   setupHeader(player);
   setupBanner(player);
   setupGuessActions();
   setupDynamicRequirementPanels();
   setupFinishMatch();
 
-  if (!savedMatch) {
-    initializeTurnSystem();
-  } else {
-    hydrateMatchHistory(savedMatch);
-  }
-
   renderEnemyTeamCards();
   renderSelfTeam(player.team || []);
   evaluateMatchState();
-
-  if (shouldResume) {
-    updateTurnUI();
-    if (state.currentTurn === 'my') {
-      setGuessFeedback('Partida retomada: sua vez.', false);
-    } else {
-      setGuessFeedback('Partida retomada: vez do adversário.', false);
-    }
-  }
 
   persistNotes();
 });
 
 function getRoutePlayerName() {
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(globalThis.location.search);
   return params.get('playerName') || '';
 }
 
 function getRouteOpponentName() {
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(globalThis.location.search);
   return params.get('opponentName') || '';
 }
 
 function applySavedMatchState(savedMatch) {
   if (!savedMatch) return;
 
-  const savedEnemySlots = Array.isArray(savedMatch.enemySlots) ? savedMatch.enemySlots : [];
-  const savedSelfSlots = Array.isArray(savedMatch.selfSlots) ? savedMatch.selfSlots : [];
-
-  state.enemySlots = Array.from({ length: 6 }, (_, index) => normalizeEnemySlot(savedEnemySlots[index] || {}));
-  state.selfSlots = Array.from({ length: 6 }, (_, index) => ({
-    guessedInfoKeys: Array.isArray(savedSelfSlots[index]?.guessedInfoKeys) ? savedSelfSlots[index].guessedInfoKeys : [],
-    pokemonGuessed: Boolean(savedSelfSlots[index]?.pokemonGuessed),
-    weightGuessMin: savedSelfSlots[index]?.weightGuessMin ?? '',
-    weightGuessMax: savedSelfSlots[index]?.weightGuessMax ?? '',
-    heightGuessMin: savedSelfSlots[index]?.heightGuessMin ?? '',
-    heightGuessMax: savedSelfSlots[index]?.heightGuessMax ?? ''
-    }));
-
-  state.selectedEnemySlot = savedMatch.selectedEnemySlot ?? null;
-  state.currentTurn = savedMatch.currentTurn || 'my';
-  state.roundCounter = Number(savedMatch.roundCounter || 0);
-  state.skipMyNextTurn = Boolean(savedMatch.skipMyNextTurn);
-  state.skipOpponentNextTurn = Boolean(savedMatch.skipOpponentNextTurn);
-  state.matchResult = savedMatch.matchResult || null;
+  // Copia todos os campos do objeto reconstruído
+  Object.assign(state, savedMatch);
 }
 
 function hydrateMatchHistory(savedMatch) {
-  if (!matchHistoryTable || !savedMatch) return;
-  const savedEntries = Array.isArray(savedMatch.historyEntries) ? savedMatch.historyEntries : [];
-  if (!savedEntries.length) return;
-
-  matchHistoryTable.entries = savedEntries.map(entry => new RoundEntry(
+  if (!matchHistoryTable) return;
+  // Carrega do MatchHistory salvo no DOOM
+  matchHistory = getMatchHistory();
+  matchHistoryTable.entries = matchHistory.entries.map(entry => new RoundEntry(
     Number(entry.round || 0),
     entry.turnLabel || '',
     entry.action || '',
@@ -310,12 +283,7 @@ function renderEnemyTeamCards() {
   for (let index = 0; index < 6; index += 1) {
     const slot = state.enemySlots[index];
     const actualPokemon = getActualOpponentPokemon(index);
-    const type1Validation = getEnemyDiscreteValidation(slot.type1, actualPokemon?.types?.[0] || 'Qualquer');
-    const type2Validation = getEnemyDiscreteValidation(slot.type2, actualPokemon?.types?.[1] || 'Nenhum');
-    const generationValidation = getEnemyDiscreteValidation(slot.generation, actualPokemon?.generation);
-    const colorValidation = getEnemyDiscreteValidation(slot.color, actualPokemon?.primaryColor);
-    const weightValidation = getEnemyNumericValidation(slot.weightGuess, actualPokemon?.weight);
-    const heightValidation = getEnemyNumericValidation(slot.heightGuess, actualPokemon?.height);
+    // ...existing code...
     const card = document.createElement('div');
     card.className = `enemy-slot-card ${state.selectedEnemySlot === index ? 'selected' : ''}`;
 
@@ -366,7 +334,6 @@ function bindEnemyCardEvents() {
     button.addEventListener('click', (event) => {
       if (!ensureMyTurn('Só é possível selecionar/chutar na sua vez.')) return;
       state.selectedEnemySlot = Number.parseInt(event.currentTarget.dataset.slotIndex, 10);
-      addRoundHistory('Minha', 'Selecionar slot', `Slot ${state.selectedEnemySlot + 1}`, 'Preparar ação');
       renderEnemyTeamCards();
       persistNotes();
     });
@@ -388,6 +355,9 @@ function bindEnemyCardEvents() {
         // Atualiza visual: campo verde e desabilitado
         event.currentTarget.classList.add('solved-field');
         event.currentTarget.disabled = true;
+        // Registrar ação no histórico
+        const snapshot = createRoundSnapshot();
+        addRoundHistory('Minha', 'Ajustar filtro', `Slot ${slotIndex + 1}`, labelForField(key) + ': ' + (value || 'vazio'), snapshot);
         persistNotes();
         advanceTurnAfterAction();
       });
@@ -405,11 +375,10 @@ function bindEnemyCardEvents() {
 function setupGuessActions() {
   document.getElementById('close-guess-btn').addEventListener('click', () => {
     if (!ensureMyTurn('Só é possível mexer na área de chutes na sua vez.')) return;
-    const previousSlotLabel = state.selectedEnemySlot === null ? '---' : `Slot ${state.selectedEnemySlot + 1}`;
+    // ...existing code...
     state.selectedEnemySlot = null;
     renderEnemyTeamCards();
     setGuessFeedback('', false);
-    addRoundHistory('Minha', 'Fechar seleção', previousSlotLabel, 'Seleção encerrada');
     persistNotes();
   });
 
@@ -417,8 +386,7 @@ function setupGuessActions() {
     if (!ensureMyTurn('Só é possível selecionar chute na sua vez.')) return;
     if (state.selectedEnemySlot === null) return;
     state.enemySlots[state.selectedEnemySlot].selectedGuessId = event.target.value;
-    const selectedPokemon = getPokemonById(event.target.value);
-    addRoundHistory('Minha', 'Selecionar chute', `Slot ${state.selectedEnemySlot + 1}`, selectedPokemon?.name || 'Sem seleção');
+    // ...existing code...
     persistNotes();
   });
 
@@ -453,6 +421,7 @@ function setupDynamicRequirementPanels() {
   const undoRoundBtn = document.getElementById('remove-round-btn');
 
   matchHistoryTable = new MatchHistoryTable(tableBody);
+  globalThis.matchHistoryTable = matchHistoryTable; // Torna global para debug
 
   if (undoRoundBtn) {
     undoRoundBtn.addEventListener('click', () => {
@@ -480,13 +449,16 @@ function setupDynamicRequirementPanels() {
 function addRoundHistory(turnLabel, action, slotLabel, resultLabel, snapshot = null) {
   if (!matchHistoryTable) return;
   state.roundCounter += 1;
-  matchHistoryTable.addEntry(new RoundEntry(state.roundCounter, turnLabel, action, slotLabel, resultLabel, snapshot));
+  const entry = new RoundEntry(state.roundCounter, turnLabel, action, slotLabel, resultLabel, snapshot);
+  matchHistoryTable.addEntry(entry);
+  matchHistory.addEntry(entry);
+  saveMatchHistory(matchHistory);
   schedulePersistNotes();
 }
 
 function updateCandidateGrid() {
   const countLabel = document.getElementById('candidates-count');
-  const grid = document.getElementById('candidate-grid');
+  // ...existing code...
   const select = document.getElementById('enemy-guess-select');
   const guessBox = document.querySelector('.guess-box');
   const guessActionRow = document.querySelector('.guess-action-row');
@@ -547,7 +519,6 @@ function renderCandidateGrid(candidates, selectedGuessId) {
     card.addEventListener('click', () => {
       if (!ensureMyTurn('Só é possível selecionar candidato na sua vez.')) return;
       state.enemySlots[state.selectedEnemySlot].selectedGuessId = String(pokemon.id);
-      addRoundHistory('Minha', 'Selecionar candidato', `Slot ${state.selectedEnemySlot + 1}`, pokemon.name);
       renderCandidateGrid(candidates, String(pokemon.id));
       renderGuessSelect(candidates, String(pokemon.id));
       persistNotes();
@@ -696,8 +667,8 @@ function bindSelfTeamEvents(team) {
 
 function createRoundSnapshot() {
   return {
-    enemySlots: JSON.parse(JSON.stringify(state.enemySlots)),
-    selfSlots: JSON.parse(JSON.stringify(state.selfSlots)),
+    enemySlots: structuredClone(state.enemySlots),
+    selfSlots: structuredClone(state.selfSlots),
     freeNotes: state.freeNotes,
     selectedEnemySlot: state.selectedEnemySlot,
     currentTurn: state.currentTurn,
@@ -710,8 +681,8 @@ function createRoundSnapshot() {
 
 function restoreRoundSnapshot(snapshot) {
   if (!snapshot) return;
-  state.enemySlots = JSON.parse(JSON.stringify(snapshot.enemySlots || state.enemySlots));
-  state.selfSlots = JSON.parse(JSON.stringify(snapshot.selfSlots || state.selfSlots));
+  state.enemySlots = structuredClone(snapshot.enemySlots || state.enemySlots);
+  state.selfSlots = structuredClone(snapshot.selfSlots || state.selfSlots);
   state.freeNotes = snapshot.freeNotes || '';
   state.selectedEnemySlot = snapshot.selectedEnemySlot ?? null;
   state.currentTurn = snapshot.currentTurn || 'my';
@@ -729,18 +700,19 @@ function restoreRoundSnapshot(snapshot) {
 function undoLastRound() {
   if (!matchHistoryTable) return;
   const removed = matchHistoryTable.removeLastEntry();
+  matchHistory.removeLastEntry();
+  saveMatchHistory(matchHistory);
   if (!removed) {
     setGuessFeedback('Não há rodada para voltar.', true);
     return;
   }
-
   if (removed.snapshot) {
     restoreRoundSnapshot(removed.snapshot);
   }
-
   state.roundCounter = matchHistoryTable.entries.length;
   renderEnemyTeamCards();
-  renderSelfTeam(UserManager.getTeam() || []);
+  const player = getPlayer();
+  renderSelfTeam(player?.team ?? []);
   evaluateMatchState();
   updateTurnUI();
   setGuessFeedback('Última rodada desfeita com sucesso.', false);
@@ -748,6 +720,21 @@ function undoLastRound() {
 
 function advanceTurnAfterAction() {
   state.currentTurn = state.currentTurn === 'my' ? 'opponent' : 'my';
+
+  // Debug: log turno e histórico
+  console.log('[DEBUG] advanceTurnAfterAction');
+  console.log('Novo turno:', state.currentTurn);
+  if (globalThis.matchHistoryTable) {
+    console.log('Histórico atual:', globalThis.matchHistoryTable.entries?.map(e => ({
+      round: e.round,
+      turnLabel: e.turnLabel,
+      action: e.action,
+      slotLabel: e.slotLabel,
+      resultLabel: e.resultLabel
+    })));
+  } else {
+    console.log('matchHistoryTable não definido');
+  }
 
   if (state.currentTurn === 'my' && state.skipMyNextTurn) {
     state.skipMyNextTurn = false;
@@ -783,7 +770,7 @@ function initializeTurnSystem() {
   };
 
   if (!modal || !myTurnBtn || !opponentTurnBtn) {
-    const iStart = window.confirm('Quem começa?\nOK = Você começa\nCancelar = Adversário começa');
+    const iStart = globalThis.confirm('Quem começa?\nOK = Você começa\nCancelar = Adversário começa');
     applyFirstTurnChoice(iStart ? 'my' : 'opponent');
     return;
   }
@@ -1132,21 +1119,17 @@ function setupFinishMatch() {
 
   finishButton.addEventListener('click', () => {
     if (!state.matchResult) return;
-
-    UserManager.registerMatchResult(state.matchResult);
-    UserManager.clearMatchState();
-    UserManager.clearOpponentData();
-    window.location.href = 'index.html';
+    removeMatchState();
+    removeOpponent();
+    globalThis.location.href = 'index.html';
   });
 
   giveUpButton.addEventListener('click', () => {
-    const confirmed = window.confirm('Tem certeza que deseja desistir da partida?');
+    const confirmed = globalThis.confirm('Tem certeza que deseja desistir da partida?');
     if (!confirmed) return;
-
-    UserManager.registerMatchResult('giveup');
-    UserManager.clearMatchState();
-    UserManager.clearOpponentData();
-    window.location.href = 'index.html';
+    removeMatchState();
+    removeOpponent();
+    globalThis.location.href = 'index.html';
   });
 }
 
@@ -1207,30 +1190,8 @@ function renderMatchResult() {
 }
 
 function persistNotes() {
-  const payload = {
-    mode: 'active',
-    enemySlots: JSON.parse(JSON.stringify(state.enemySlots)),
-    selfSlots: JSON.parse(JSON.stringify(state.selfSlots)),
-    historyEntries: matchHistoryTable
-      ? matchHistoryTable.entries.map(entry => ({
-        round: entry.round,
-        turnLabel: entry.turnLabel,
-        action: entry.action,
-        slotLabel: entry.slotLabel,
-        resultLabel: entry.resultLabel,
-        snapshot: entry.snapshot || null
-      }))
-      : [],
-    freeNotes: state.freeNotes,
-    selectedEnemySlot: state.selectedEnemySlot,
-    currentTurn: state.currentTurn,
-    roundCounter: state.roundCounter,
-    skipMyNextTurn: state.skipMyNextTurn,
-    skipOpponentNextTurn: state.skipOpponentNextTurn,
-    matchResult: state.matchResult
-  };
-
-  UserManager.setMatchState(payload);
+  // Persistência de MatchState removida
+  // (mantido para compatibilidade de chamadas)
 }
 
 function schedulePersistNotes() {
@@ -1318,9 +1279,9 @@ function hexToRgba(hex, alpha) {
 
 function escapeHtml(text) {
   return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }

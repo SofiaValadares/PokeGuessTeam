@@ -1,3 +1,7 @@
+
+import { getPlayer, savePlayer, removePlayer } from '../store/manager/playerManager.js';
+import Player from '../store/objects/Player.js';
+import { validateNickname, validateAvatar } from './user.js';
 // ====== POKÉTEAMGUESS REGISTRATION ======
 
 class PlayerRegistration {
@@ -16,7 +20,7 @@ class PlayerRegistration {
    * Verifica se há um jogador já registrado
    */
   checkExistingPlayer() {
-    const existingPlayer = UserManager.getPlayerData();
+    const existingPlayer = getPlayer();
 
     if (existingPlayer) {
       this.isEditing = true;
@@ -167,19 +171,41 @@ class PlayerRegistration {
     registerBtn.disabled = true;
 
     // Register or update
-    const result = this.isEditing
-      ? UserManager.updateProfile(nickname, this.selectedAvatar)
-      : UserManager.registerPlayer(nickname, this.selectedAvatar);
-
-    if (result.success) {
-      this.showMessage(result.message, 'success');
-      
-      // Redirect after 1.5 seconds
+    // Validação
+    const nicknameValidation = validateNickname(nickname);
+    if (!nicknameValidation.valid) {
+      this.showMessage(nicknameValidation.message, 'error');
+      registerBtn.disabled = false;
+      return;
+    }
+    const avatarValidation = validateAvatar(this.selectedAvatar);
+    if (!avatarValidation.valid) {
+      this.showMessage(avatarValidation.message, 'error');
+      registerBtn.disabled = false;
+      return;
+    }
+    let player;
+    if (this.isEditing) {
+      player = getPlayer();
+      if (!player) {
+        this.showMessage('Jogador não encontrado.', 'error');
+        registerBtn.disabled = false;
+        return;
+      }
+      player.nickname = nickname;
+      player.avatar = this.selectedAvatar;
+      player.updatedAt = new Date().toISOString();
+    } else {
+      player = new Player({ nickname, avatar: this.selectedAvatar });
+    }
+    const ok = savePlayer(player);
+    if (ok) {
+      this.showMessage('✓ Registro confirmado! Bem-vindo, treinador!', 'success');
       setTimeout(() => {
         window.location.href = 'index.html';
       }, 1500);
     } else {
-      this.showMessage(result.message, 'error');
+      this.showMessage('Erro ao salvar dados. Tente novamente!', 'error');
       registerBtn.disabled = false;
     }
   }
@@ -198,7 +224,7 @@ class PlayerRegistration {
    * Confirma e executa a exclusão do perfil
    */
   confirmDelete() {
-    UserManager.clearPlayerData();
+    removePlayer();
     this.showMessage('✓ Perfil deletado! Redirecionando...', 'success');
     const modal = document.getElementById('delete-modal');
     if (modal) {

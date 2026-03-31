@@ -1,5 +1,8 @@
-// Script extraído de index.html
-
+import { requirePlayerProfile } from '../config/sectionManager.js';
+import { getPlayer, savePlayer } from '../store/manager/playerManager.js';
+// import já existente no topo, não duplicar
+import { getAllPokemon } from './pokemonData.js';
+import { getOpponent } from '../store/manager/opponentManager.js';
 
 let currentSelectedSlot = null;
 let draggedSlotIndex = null;
@@ -11,175 +14,71 @@ const SEARCH_DEBOUNCE_MS = 120;
 const MAX_DROPDOWN_RESULTS_WHEN_EMPTY = 60;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!UserManager.isPlayerRegistered()) {
-    window.location.href = 'register.html';
-  } else {
-    cachedAllPokemon = getAllPokemon();
-    const player = UserManager.getPlayerData();
-    document.getElementById('welcome-message').textContent = player.nickname;
-    document.getElementById('main-title').textContent = `TREINADOR ${player.nickname.toUpperCase()}`;
-    document.getElementById('player-details').textContent = `Nível ${player.level} | XP: ${player.experience}`;
-    refreshPlayerStats();
-    const avatarContainer = document.getElementById('avatar-container');
-    const playerAvatar = document.getElementById('player-avatar');
-    playerAvatar.src = `assets/players/${player.avatar}`;
-    avatarContainer.style.display = 'flex';
-    const teamSection = document.getElementById('team-section');
-    teamSection.style.display = 'block';
-    setupPokemonSearch();
-    setupSelectorButtons();
-    window.addEventListener('resize', adjustPokemonDropdownHeight);
-    requestAnimationFrame(adjustPokemonDropdownHeight);
-    loadTeamDisplay();
-    setupMatchCodeSection();
-    await refreshEncryptedMatchCode();
-    const profileButtons = document.getElementById('profile-buttons');
-    profileButtons.style.display = 'flex';
-    document.getElementById('edit-profile-btn').addEventListener('click', () => {
-      window.location.href = 'register.html';
+  if (!requirePlayerProfile()) return;
+  const player = getPlayer();
+  cachedAllPokemon = getAllPokemon();
+  document.getElementById('welcome-message').textContent = player.nickname;
+  document.getElementById('main-title').textContent = `TREINADOR ${player.nickname.toUpperCase()}`;
+  document.getElementById('player-details').textContent = `Nível ${player.level} | XP: ${player.experience}`;
+  refreshPlayerStats();
+  const avatarContainer = document.getElementById('avatar-container');
+  const playerAvatar = document.getElementById('player-avatar');
+  playerAvatar.src = `assets/players/${player.avatar}`;
+  avatarContainer.style.display = 'flex';
+  const teamSection = document.getElementById('team-section');
+  teamSection.style.display = 'block';
+  setupPokemonSearch();
+  setupSelectorButtons();
+  window.addEventListener('resize', adjustPokemonDropdownHeight);
+  requestAnimationFrame(adjustPokemonDropdownHeight);
+  loadTeamDisplay();
+  const profileButtons = document.getElementById('profile-buttons');
+  if (profileButtons) profileButtons.style.display = 'flex';
+  const editProfileBtn = document.getElementById('edit-profile-btn');
+  if (editProfileBtn) editProfileBtn.addEventListener('click', () => {
+    globalThis.location.href = 'register.html';
+  });
+  const playBtn = document.getElementById('play-btn');
+  const resumeBtn = document.getElementById('resume-match-btn');
+  if (playBtn) playBtn.addEventListener('click', () => {
+    if (playBtn.disabled) return;
+    const playerName = getPlayer()?.nickname || '';
+    const opponentName = document.getElementById('opponent-name-input')?.value?.trim() || '';
+    const params = new URLSearchParams({
+      playerName,
+      opponentName
     });
-    const playBtn = document.getElementById('play-btn');
-    const resumeBtn = document.getElementById('resume-match-btn');
-    playBtn.addEventListener('click', () => {
-      if (playBtn.disabled) return;
-      UserManager.clearMatchState();
-      const playerName = UserManager.getPlayerData()?.nickname || '';
-      const opponentName = document.getElementById('opponent-name-input')?.value?.trim() || '';
-      const params = new URLSearchParams({
-        playerName,
-        opponentName
-      });
-      window.location.href = `guess.html?${params.toString()}`;
+    globalThis.location.href = `guess.html?${params.toString()}`;
+  });
+  // Atualiza o botão ao digitar o nome do adversário
+  const opponentNameInput = document.getElementById('opponent-name-input');
+  if (opponentNameInput) opponentNameInput.addEventListener('input', updatePlayButton);
+  if (resumeBtn) resumeBtn.addEventListener('click', () => {
+    if (resumeBtn.disabled) return;
+    const savedMatch = getMatchState();
+    const playerName = getPlayer()?.nickname || '';
+    const persistedOpponentName = savedMatch?.opponentData?.nickname || getOpponent()?.nickname || '';
+    const opponentName = importedOpponentData?.nickname || persistedOpponentName;
+    const params = new URLSearchParams({
+      playerName,
+      opponentName
     });
-    // Atualiza o botão ao digitar o nome do adversário
-    document.getElementById('opponent-name-input')?.addEventListener('input', updatePlayButton);
-    resumeBtn.addEventListener('click', () => {
-      if (resumeBtn.disabled) return;
-      const savedMatch = UserManager.getMatchState();
-      const playerName = UserManager.getPlayerData()?.nickname || '';
-      const persistedOpponentName = savedMatch?.opponentData?.nickname || UserManager.getOpponentData()?.nickname || '';
-      const opponentName = importedOpponentData?.nickname || persistedOpponentName;
-      const params = new URLSearchParams({
-        playerName,
-        opponentName
-      });
-      window.location.href = `guess.html?${params.toString()}`;
-    });
-    document.getElementById('go-to-register-btn').style.display = 'none';
-    updatePlayButton();
-    document.querySelectorAll('.team-slot').forEach(slot => {
-      slot.addEventListener('click', selectTeamSlot);
-    });
-    setupTeamDragAndDrop();
-  }
+    globalThis.location.href = `guess.html?${params.toString()}`;
+  });
+  const goToRegisterBtn = document.getElementById('go-to-register-btn');
+  if (goToRegisterBtn) goToRegisterBtn.style.display = 'none';
+  updatePlayButton();
+  document.querySelectorAll('.team-slot').forEach(slot => {
+    slot.addEventListener('click', selectTeamSlot);
+  });
+  setupTeamDragAndDrop();
 });
 
-async function setupMatchCodeSection() {
-  const copyButton = document.getElementById('copy-match-code-btn');
-  const opponentCodeInput = document.getElementById('opponent-match-code');
-  const storedOpponent = UserManager.getOpponentData();
 
-  if (storedOpponent && Array.isArray(storedOpponent.team) && storedOpponent.team.length === 6) {
-    if (storedOpponent.source !== 'ai') {
-      importedOpponentData = storedOpponent;
-      hasValidOpponentCode = false;
-      setMatchCodeStatus('Código do adversário já carregado para a próxima partida.', false);
-    } else {
-      UserManager.clearOpponentData();
-    }
-  }
 
-  copyButton?.addEventListener('click', async () => {
-    const code = ownEncryptedMatchCode.trim();
-    if (!code) {
-      setMatchCodeStatus('Monte seu time completo para gerar o código.', true);
-      return;
-    }
 
-    try {
-      await navigator.clipboard.writeText(code);
-      setMatchCodeStatus('Código copiado com sucesso.', false);
-    } catch (error) {
-      setMatchCodeStatus('Não foi possível copiar automaticamente. Copie manualmente.', true);
-    }
-  });
 
-  opponentCodeInput?.addEventListener('input', () => {
-    hasValidOpponentCode = false;
-    importedOpponentData = null;
-    UserManager.clearOpponentData();
-    updatePlayButton();
-    clearTimeout(importCodeDebounceTimer);
-    importCodeDebounceTimer = setTimeout(() => {
-      importOpponentCode(opponentCodeInput.value.trim());
-    }, 250);
-  });
-}
 
-async function refreshEncryptedMatchCode() {
-  const team = UserManager.getTeam();
-  const player = UserManager.getPlayerData();
-  const copyButton = document.getElementById('copy-match-code-btn');
-
-  if (!player || team.length !== 6) {
-    ownEncryptedMatchCode = '';
-    if (copyButton) {
-      copyButton.disabled = true;
-    }
-    return;
-  }
-
-  try {
-    ownEncryptedMatchCode = await encryptMatchCode({
-      nickname: player.nickname,
-      teamIds: team.map(pokemon => Number(pokemon.id))
-    });
-    if (copyButton) {
-      copyButton.disabled = false;
-    }
-  } catch (error) {
-    ownEncryptedMatchCode = '';
-    if (copyButton) {
-      copyButton.disabled = true;
-    }
-    setMatchCodeStatus('Falha ao gerar o código criptografado.', true);
-  }
-}
-
-async function importOpponentCode(code) {
-  if (!code) {
-    hasValidOpponentCode = false;
-    importedOpponentData = null;
-    UserManager.clearOpponentData();
-    setMatchCodeStatus('Cole o código do adversário para importar automaticamente.', false);
-    updatePlayButton();
-    return;
-  }
-
-  try {
-    const payload = await decryptMatchCode(code);
-    const opponentTeam = buildPokemonTeamFromIds(payload.teamIds || []);
-    if (!payload.nickname || opponentTeam.length !== 6) {
-      throw new Error('Código inválido');
-    }
-
-    importedOpponentData = UserManager.setOpponentData({
-      nickname: payload.nickname,
-      team: opponentTeam,
-      source: 'code'
-    });
-    hasValidOpponentCode = true;
-
-    setMatchCodeStatus('Código do adversário importado automaticamente com sucesso.', false);
-    updatePlayButton();
-  } catch (error) {
-    hasValidOpponentCode = false;
-    importedOpponentData = null;
-    UserManager.clearOpponentData();
-    setMatchCodeStatus('Código inválido ou incompleto.', true);
-    updatePlayButton();
-  }
-}
 
 function setMatchCodeStatus(message, isError) {
   const status = document.getElementById('match-code-status');
@@ -195,65 +94,18 @@ function buildPokemonTeamFromIds(teamIds) {
     .filter(Boolean);
 }
 
-async function encryptMatchCode(payload) {
-  const encodedPayload = new TextEncoder().encode(JSON.stringify(payload));
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await deriveMatchCodeKey(salt);
-  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encodedPayload);
-  return `${MATCH_CODE_PREFIX}.${toBase64Url(salt)}.${toBase64Url(iv)}.${toBase64Url(new Uint8Array(encrypted))}`;
-}
 
-async function decryptMatchCode(code) {
-  const parts = code.split('.');
-  if (parts.length !== 4 || parts[0] !== MATCH_CODE_PREFIX) {
-    throw new Error('Formato inválido');
-  }
-
-  const salt = fromBase64Url(parts[1]);
-  const iv = fromBase64Url(parts[2]);
-  const encrypted = fromBase64Url(parts[3]);
-  const key = await deriveMatchCodeKey(salt);
-  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
-  return JSON.parse(new TextDecoder().decode(decrypted));
-}
-
-async function deriveMatchCodeKey(salt) {
-  const baseKey = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(MATCH_CODE_SECRET),
-    'PBKDF2',
-    false,
-    ['deriveKey']
-  );
-
-  return crypto.subtle.deriveKey(
-    {
-      name: 'PBKDF2',
-      salt,
-      iterations: 120000,
-      hash: 'SHA-256'
-    },
-    baseKey,
-    {
-      name: 'AES-GCM',
-      length: 256
-    },
-    false,
-    ['encrypt', 'decrypt']
-  );
-}
 
 function toBase64Url(bytes) {
-  const binary = Array.from(bytes, byte => String.fromCharCode(byte)).join('');
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+  const binary = Array.from(bytes, byte => String.fromCodePoint(byte)).join('');
+  return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replaceAll(/=+$/g, '');
 }
 
 function fromBase64Url(value) {
-  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+  const normalized = value.replaceAll('-', '+').replaceAll('_', '/');
   const padding = '='.repeat((4 - (normalized.length % 4)) % 4);
   const binary = atob(normalized + padding);
-  return Uint8Array.from(binary, char => char.charCodeAt(0));
+  return Uint8Array.from(binary, char => char.codePointAt(0));
 }
 
 function setupSelectorButtons() {
@@ -261,20 +113,20 @@ function setupSelectorButtons() {
     const all = cachedAllPokemon.length ? cachedAllPokemon : getAllPokemon();
     const shuffled = [...all].sort(() => Math.random() - 0.5);
     const randomTeam = shuffled.slice(0, 6);
-    UserManager.saveTeam(randomTeam);
+    saveTeam(randomTeam);
     loadTeamDisplay();
     updatePlayButton();
     refreshPlayerStats();
-    refreshEncryptedMatchCode();
+
     if (renderPokemonDropdown) renderPokemonDropdown();
   });
 
   document.getElementById('clear-team-btn').addEventListener('click', () => {
-    UserManager.saveTeam([]);
+    saveTeam([]);
     loadTeamDisplay();
     updatePlayButton();
     refreshPlayerStats();
-    refreshEncryptedMatchCode();
+
     if (renderPokemonDropdown) renderPokemonDropdown();
   });
 }
@@ -285,7 +137,7 @@ function setupPokemonSearch() {
   const allPokemon = cachedAllPokemon.length ? cachedAllPokemon : getAllPokemon();
 
   function renderDropdown() {
-    const team = UserManager.getTeam();
+    const team = getTeam();
     const isFull = team.length >= 6;
     searchInput.disabled = isFull;
     dropdown.innerHTML = '';
@@ -308,16 +160,16 @@ function setupPokemonSearch() {
       item.className = 'pokemon-search-item';
       item.innerHTML = `<img src="${pokemon.sprite}" alt="${pokemon.name}" loading="lazy" decoding="async"><span class="name">${pokemon.name}</span>`;
       item.onclick = () => {
-        const team = UserManager.getTeam();
+        const team = getTeam();
         if (team.length < 6) {
           team.push(pokemon);
-          UserManager.saveTeam(team);
+          saveTeam(team);
           searchInput.value = '';
           renderDropdown();
           loadTeamDisplay();
           updatePlayButton();
           refreshPlayerStats();
-          refreshEncryptedMatchCode();
+
         }
       };
       fragment.appendChild(item);
@@ -347,7 +199,7 @@ function setupPokemonSearch() {
 }
 
 function refreshPlayerStats() {
-  const stats = UserManager.getStats();
+  const stats = getStats();
   const statsDisplay = document.getElementById('stats-display');
 
   if (!stats) {
@@ -382,26 +234,26 @@ function adjustPokemonDropdownHeight() {
     return;
   }
 
-  const selectorStyles = window.getComputedStyle(selector);
-  const inputStyles = searchInput ? window.getComputedStyle(searchInput) : null;
-  const buttonsStyles = buttons ? window.getComputedStyle(buttons) : null;
-  const dropdownStyles = window.getComputedStyle(dropdown);
+  const selectorStyles = globalThis.getComputedStyle(selector);
+  const inputStyles = searchInput ? globalThis.getComputedStyle(searchInput) : null;
+  const buttonsStyles = buttons ? globalThis.getComputedStyle(buttons) : null;
+  const dropdownStyles = globalThis.getComputedStyle(dropdown);
 
   let availableHeight = selectorHeight;
-  availableHeight -= (parseFloat(selectorStyles.paddingTop) || 0) + (parseFloat(selectorStyles.paddingBottom) || 0);
+  availableHeight -= (Number.parseFloat(selectorStyles.paddingTop) || 0) + (Number.parseFloat(selectorStyles.paddingBottom) || 0);
 
   if (searchInput) {
     availableHeight -= searchInput.offsetHeight;
-    availableHeight -= parseFloat(inputStyles?.marginBottom || '0');
+    availableHeight -= Number.parseFloat(inputStyles?.marginBottom || '0');
   }
 
   if (buttons) {
     availableHeight -= buttons.offsetHeight;
-    availableHeight -= parseFloat(buttonsStyles?.marginTop || '0');
-    availableHeight -= parseFloat(buttonsStyles?.marginBottom || '0');
+    availableHeight -= Number.parseFloat(buttonsStyles?.marginTop || '0');
+    availableHeight -= Number.parseFloat(buttonsStyles?.marginBottom || '0');
   }
 
-  availableHeight -= parseFloat(dropdownStyles.marginTop || '0');
+  availableHeight -= Number.parseFloat(dropdownStyles.marginTop || '0');
 
   const finalHeight = Math.max(availableHeight, 120);
   dropdown.style.height = `${finalHeight}px`;
@@ -416,7 +268,7 @@ function selectTeamSlot(e) {
 }
 
 function loadTeamDisplay() {
-  const team = UserManager.getTeam();
+  const team = getTeam();
   const teamGrid = document.getElementById('team-grid');
   const slots = teamGrid.querySelectorAll('.team-slot');
   slots.forEach((slot, index) => {
@@ -444,13 +296,13 @@ function loadTeamDisplay() {
     btn.onclick = (e) => {
       e.stopPropagation();
       const idx = Number.parseInt(btn.dataset.index);
-      const team = UserManager.getTeam();
+      const team = getTeam();
       team.splice(idx, 1);
-      UserManager.saveTeam(team);
+      saveTeam(team);
       loadTeamDisplay();
       updatePlayButton();
       refreshPlayerStats();
-      refreshEncryptedMatchCode();
+
       if (renderPokemonDropdown) {
         renderPokemonDropdown();
       }
@@ -521,7 +373,7 @@ function handleSlotDragEnd(event) {
 }
 
 function reorderTeam(fromIndex, toIndex) {
-  const team = UserManager.getTeam();
+  const team = getTeam();
 
   if (!team[fromIndex]) {
     return;
@@ -530,11 +382,11 @@ function reorderTeam(fromIndex, toIndex) {
   const [movedPokemon] = team.splice(fromIndex, 1);
   team.splice(toIndex, 0, movedPokemon);
 
-  UserManager.saveTeam(team);
+  saveTeam(team);
   loadTeamDisplay();
   updatePlayButton();
   refreshPlayerStats();
-  refreshEncryptedMatchCode();
+
   if (renderPokemonDropdown) {
     renderPokemonDropdown();
   }
@@ -544,9 +396,7 @@ function updatePlayButton() {
   const playBtn = document.getElementById('play-btn');
   const resumeBtn = document.getElementById('resume-match-btn');
   const opponentNameInput = document.getElementById('opponent-name-input');
-  const team = UserManager.getTeam();
-  const playerCode = UserManager.getPlayerCode();
-  const canResume = UserManager.hasActiveMatchForPlayer(playerCode);
+  const team = getTeam();
   const opponentName = opponentNameInput?.value?.trim() || '';
   const canPlay = team.length === 6 && opponentName.length > 0;
 
@@ -560,7 +410,38 @@ function updatePlayButton() {
   }
 
   if (resumeBtn) {
+    const hasMatch = !!getMatchState();
     resumeBtn.style.display = 'block';
-    resumeBtn.disabled = !canResume;
+    resumeBtn.disabled = !hasMatch;
   }
+}
+
+// Funções auxiliares para manipular o time e stats do player
+
+
+function getTeam() {
+  const player = getPlayer();
+  return player && Array.isArray(player.team) ? player.team : [];
+}
+
+function saveTeam(team) {
+  const player = getPlayer();
+  if (!player) return false;
+  player.team = team;
+  savePlayer(player);
+  return true;
+}
+
+function getStats() {
+  const player = getPlayer();
+  if (!player) return null;
+  return {
+    matchesWon: player.matchesWon || 0,
+    matchesLost: player.matchesLost || 0,
+    matchesPlayed: player.matchesPlayed || 0,
+    winRate: player.matchesPlayed ? Math.round(100 * (player.matchesWon || 0) / player.matchesPlayed) : 0,
+    level: player.level || 1,
+    experience: player.experience || 0,
+    teamSize: Array.isArray(player.team) ? player.team.length : 0
+  };
 }

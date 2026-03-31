@@ -1056,7 +1056,7 @@ Object.values(POKEMON_STARTERS).forEach((pokemon) => {
 });
 
 function getAllStarters() { return Object.values(POKEMON_STARTERS); }
-function getAllPokemon() { return Object.values(POKEMON_STARTERS); }
+export function getAllPokemon() { return Object.values(POKEMON_STARTERS); }
 function getStarterByName(name) { const key = name.toLowerCase().replace(/[^a-z0-9]/g, ""); return POKEMON_STARTERS[key] || null; }
 function getStartersByGeneration(gen) { return Object.values(POKEMON_STARTERS).filter(pokemon => pokemon.generation === gen); }
 function getStartersByType(type) { return Object.values(POKEMON_STARTERS).filter(pokemon => pokemon.types.includes(type)); }
