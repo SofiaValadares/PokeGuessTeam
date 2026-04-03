@@ -91,7 +91,13 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 	leftScreen.innerHTML = selectionBoardHtml;
 	rightScreen.innerHTML = teamSideHtml;
 
-	const selectionBoardController = setupSelectionBoard(leftScreen);
+	const selectionBoardController = setupSelectionBoard(leftScreen, {
+		onRandomTeam: () => {
+			selectedNames = shuffleArray(pokemonData.map(pokemon => pokemon.name)).slice(0, 6);
+			clearStatus();
+			renderSelectedTeam();
+		},
+	});
 	const teamSideController = setupTeamSide(rightScreen, {
 		onGuestNameInput: value => {
 			guestName = value;
