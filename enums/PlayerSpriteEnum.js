@@ -1,0 +1,2 @@
+// quero fazer um enum com os valores possiveis dos sprites dos jogadores, tipo: AVATAR1, AVATAR2, AVATAR3
+// com tmb o scr da imagem, eles estao na pasta assets/player, e sao os arquivos 001P.png, 002P.png, 003P.png

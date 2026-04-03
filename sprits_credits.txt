@@ -1,0 +1,160 @@
+All custom graphics not originating from official PMD games are licensed under Attribution-NonCommercial 4.0 International http://creativecommons.org/licenses/by/4.0/.
+All graphics referred to in this file can be found in http://sprites.pmdcollab.org/
+
+â—¥Î¸â”´Î¸â—¤	Discord:<@!215638650434617345>	Contact:DC:<@215638650434617345>
+	Portrait:
+		Dartrix: Normal,Normal^
+		Torracat: Normal
+		Popplio: Normal
+		Primarina: Normal
+		Crocalor: Normal
+		Skeledirge: Normal
+		Quaxwell: Normal
+
+0palite	Discord:<@!327927398941196289>	Contact:https://zeropalart.tumblr.com/
+	Portrait:
+		Charmeleon: Normal
+		Meganium: Normal
+		Typhlosion: Normal
+		Sceptile: Normal
+		Empoleon: Normal
+
+baronessfaron	Discord:<@!544245909639397378>
+	Portrait:
+		Monferno: Normal,Normal^
+		Dewott: Normal
+		Quilladin: Normal
+		Frogadier: Normal
+		Incineroar: Normal
+		Brionne: Normal
+		Primarina: Normal
+
+C_Pariah	Discord:<@!322382592202637322>	Contact:<@322382592202637322>
+	Portrait:
+		Bayleef: Normal
+		Quilava: Normal
+		Croconaw: Normal,Normal^
+		Marshtomp: Normal
+
+Caitemis	Discord:<@!330751862590406656>	Contact:https://caitemis-art.tumblr.com/
+	Portrait:
+		Torracat: Normal
+
+CamusZekeSirius	Discord:<@!533406104256905257>
+	Portrait:
+		Decidueye: Normal
+
+CHUNSOFT	Discord:<@!CHUNSOFT>	Contact:https://www.spike-chunsoft.com/
+	Portrait:
+		Bulbasaur: Happy,Normal
+		Ivysaur: Normal
+		Venusaur: Normal
+		Charmander: Happy,Normal
+		Charmeleon: Normal
+		Charizard: Normal
+		Squirtle: Happy,Normal
+		Wartortle: Normal
+		Blastoise: Normal
+		Chikorita: Normal
+		Bayleef: Normal
+		Meganium: Normal
+		Cyndaquil: Normal
+		Quilava: Normal
+		Typhlosion: Normal
+		Totodile: Normal
+		Croconaw: Normal,Normal^
+		Feraligatr: Normal
+		Treecko: Normal
+		Grovyle: Normal
+		Sceptile: Normal
+		Torchic: Normal
+		Combusken: Normal
+		Blaziken: Normal
+		Mudkip: Normal
+		Marshtomp: Normal
+		Swampert: Normal
+		Turtwig: Normal
+		Grotle: Normal
+		Torterra: Normal,Normal^
+		Chimchar: Normal,Normal^
+		Monferno: Normal,Normal^
+		Infernape: Normal,Normal^
+		Piplup: Normal
+		Prinplup: Normal
+		Empoleon: Normal
+
+Deeshura	Discord:<@!157796074457661440>	Contact:https://github.com/Deeshura
+	Portrait:
+		Servine: Normal
+
+Discord:<@!225139021079117824>
+	Portrait:
+		Primarina: Normal
+
+distress	Discord:<@!177489961275097088>	Contact:artstation.com/distress
+	Portrait:
+		Meowscarada: Normal
+
+Emboarger	Discord:<@!237286997645983744>
+	Portrait:
+		Grotle: Normal
+
+Emmuffin	Discord:<@!356635814668664832>	Contact:https://twitter.com/Ernmuffin
+	Portrait:
+		Snivy: Normal
+		Serperior: Normal
+		Tepig: Normal
+		Oshawott: Normal
+		Samurott: Normal
+		Chespin: Normal
+		Braixen: Normal
+		Delphox: Normal
+		Froakie: Normal
+		Greninja: Normal,Normal^
+		Rowlet: Normal
+		Litten: Normal
+		Popplio: Normal
+		Sprigatito: Normal
+		Floragato: Normal,Normal^
+		Quaxly: Normal,Normal^
+
+Fable	Discord:<@!225813236589527041>	Contact:https://twitter.com/fabledpainter
+	Portrait:
+		Popplio: Normal
+
+Gã€œ	Discord:<@!350050109741858829>	Contact:https://bsky.app/profile/justtr4sh.pmd.social
+	Portrait:
+		Emboar: Normal
+		Fennekin: Normal
+		Froakie: Normal
+		Fuecoco: Normal,Normal^
+
+Gust	Discord:<@!861005464682889266>	Contact:https://twitter.com/Estelaris__
+	Portrait:
+		Pignite: Normal
+
+Noivern	Discord:<@!150809243816165377>	Contact:https://twitter.com/notarealnoivern
+	Portrait:
+		Tepig: Normal
+
+NOLASMOR	Discord:<@!833717817445974046>
+	Portrait:
+		Frogadier: Normal
+
+Noo	Discord:<@!217899432652308480>	Contact:comics.town/@noo
+	Portrait:
+		Feraligatr: Normal
+		Blaziken: Normal
+		Chespin: Normal
+
+Reimu\_needs\_$$$	Discord:<@!378654902181691392>	Contact:<@!378654902181691392>
+	Portrait:
+		Decidueye: Normal
+
+Soulja	Discord:<@!229131140903075840>	Contact:https://twitter.com/OlSoulja
+	Portrait:
+		Chesnaught: Normal
+
+Top_Kec	Discord:<@!276369635304275968>	Contact:@topkec.bsky.social
+	Portrait:
+		Quaquaval: Normal

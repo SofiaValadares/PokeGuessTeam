@@ -10,7 +10,3 @@ export function requirePlayerProfile() {
   }
   return true;
 }
-
-// Para usar em cada página:
-// import { requirePlayerProfile } from '../config/sectionManager.js';
-// if (!requirePlayerProfile()) return;

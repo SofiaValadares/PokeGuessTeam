@@ -1,0 +1,14 @@
+:root {
+  --color-primary: #e3350d;
+  --color-secondary: #ee6b2f;
+  --color-accent: #f7d02c;
+  --color-bg: #f2f2f2;
+  --color-surface: #fff;
+  --color-border: #d1d5db;
+  --color-text: #222;
+  --color-text-light: #fff;
+  --font-family-main: 'Roboto', Arial, sans-serif;
+  --border-radius: 12px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --transition: 0.2s cubic-bezier(.4,0,.2,1);
+}

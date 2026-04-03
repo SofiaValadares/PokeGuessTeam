@@ -4,93 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PokeTeamGuess</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/pages/home.css">
+    <link rel="stylesheet" href="components/pokedex/pokedex.css">
+    <link rel="stylesheet" href="ds/variables.css">
+    <link rel="stylesheet" href="ds/global.css">
 </head>
-<body class="index-page">
-  <div class="pokedex">
-    <!-- Header -->
-    <div class="pokedex-header">
-      <div class="pokedex-header-light"></div>
-      <div class="header-info">
-        <h1 class="pokedex-header-title">POKéTEAMGUESS</h1>
-        <p class="player-name" id="welcome-message">Carregando...</p>
-      </div>
-      <div class="pokedex-header-buttons">
-        <div class="pokedex-header-button red"></div>
-        <div class="pokedex-header-button yellow"></div>
-        <div class="pokedex-header-button green"></div>
-      </div>
+<body style="background: #222; min-height: 100vh; margin: 0;">
+    <!-- Componente Pokédex -->
+    <div id="pokedex-root">
+        <!-- O HTML da pokedex será incluído aqui -->
     </div>
-
-    <!-- Main Area -->
-    <div class="pokedex-main-area">
-      <!-- Team Section (Left Screen) -->
-      <div class="pokedex-screen-left">
-        <div class="team-section is-hidden" id="team-section">
-          <h3>⚔ SEU TIME (6 POKéMON)</h3>
-          <ul class="team-grid" id="team-grid" aria-label="Time de Pokémon">
-            <li class="team-slot empty" data-index="0"></li>
-            <li class="team-slot empty" data-index="1"></li>
-            <li class="team-slot empty" data-index="2"></li>
-            <li class="team-slot empty" data-index="3"></li>
-            <li class="team-slot empty" data-index="4"></li>
-            <li class="team-slot empty" data-index="5"></li>
-          </ul>
-          <div class="pokemon-selector" id="pokemon-selector">
-            <input type="text" id="pokemon-search" placeholder="🔍 Pesquisar Pokémon..." class="pokemon-search-input">
-            <div class="selector-buttons">
-              <button class="selector-btn random-team-btn" id="random-team-btn">Time Aleatório</button>
-              <button class="selector-btn clear-team-btn" id="clear-team-btn">Limpar Time</button>
-            </div>
-            <div id="pokemon-search-dropdown" class="pokemon-search-dropdown"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Player Info Section (Right Screen) -->
-      <div class="pokedex-screen-right">
-        <p class="welcome-text" id="main-title">POKéDEX</p>
-        <div class="player-main-info">
-          <div class="avatar-display is-hidden" id="avatar-container">
-            <img id="player-avatar" src="" alt="Avatar">
-          </div>
-          <div class="player-side-info">
-            <p class="player-info" id="player-details"></p>
-            <div class="stats-info is-hidden" id="stats-display"></div>
-            <div class="profile-buttons is-hidden" id="profile-buttons">
-              <button class="pokedex-btn" id="edit-profile-btn">Editar Perfil</button>
-            </div>
-          </div>
-        </div>
-        <input type="text" id="opponent-name-input" class="pokedex-input" placeholder="Digite o nome do adversário..." style="width:100%;" />
-        <button class="pokedex-btn" id="play-btn">► J O G A R ◄</button>
-        <div class="rules-section">
-          <h4 class="rules-title">📖 COMO JOGAR</h4>
-          <ul class="rules-list">
-            <li>Durante o seu turno você pode executar duas ações:</li>
-            <li>1. Pedir para ser revelada uma informação de um dos pokémons do seu adversário</li>
-            <li>2. Chutar um pokémon do seu adversário</li>
-            <li><b>Cuidado ao chutar:</b> se você errar perde sua próxima vez, porém se acertar joga mais uma vez.</li>
-          </ul>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Button Area -->
-    <div class="pokedex-button-area">
-      <div class="pokedex-dpad"></div>
-      <div class="pokedex-action-buttons">
-        <button class="pokedex-action-button">B</button>
-        <button class="pokedex-action-button">A</button>
-      </div>
-      <p class="sprite-credit">Sprites por artistas da PMD SpriteCollab — <a href="https://sprites.pmdcollab.org" target="_blank" rel="noopener noreferrer">sprites.pmdcollab.org</a></p>
-    </div>
-  </div>
-
-  
-  <script type="module" src="js/pokemonData.js"></script>
-  <script type="module" src="js/teamPage.js"></script>
+    <script src="components/pokedex/pokedex.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            if (window.createPokedexComponent) {
+                window.createPokedexComponent('pokedex-root');
+            }
+        });
+    </script>
 </body>
 </html>
