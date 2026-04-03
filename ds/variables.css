@@ -7,8 +7,8 @@
   --color-border: #d1d5db;
   --color-text: #222;
   --color-text-light: #fff;
-  --font-family-main: 'Roboto', Arial, sans-serif;
+  --font-family-main: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --border-radius: 12px;
-  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow: 0 18px 36px rgba(0,0,0,0.12);
   --transition: 0.2s cubic-bezier(.4,0,.2,1);
 }

@@ -1,0 +1,160 @@
+.register-card--sprite {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	height: 100%;
+}
+
+.selected-sprite-card {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 20px;
+	border-radius: 24px;
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	box-shadow: 0 20px 32px rgba(0, 0, 0, 0.16);
+}
+
+.selected-sprite-card__image {
+	width: 126px;
+	height: 126px;
+	image-rendering: pixelated;
+	border-radius: 20px;
+	background: rgba(255, 255, 255, 0.9);
+	padding: 10px;
+	object-fit: contain;
+	box-shadow: inset 0 -10px 18px rgba(15, 23, 42, 0.12);
+}
+
+.selected-sprite-card__content {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.selected-sprite-card__name,
+.selected-sprite-card__code {
+	margin: 0;
+	color: #ffffff;
+}
+
+.selected-sprite-card__name {
+	font-size: 1.55rem;
+	font-weight: 700;
+}
+
+.selected-sprite-card__content::before {
+	content: 'Avatar selecionado';
+	font-size: 0.78rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #ffe7a8;
+}
+
+.selected-sprite-card__code {
+	color: #d6e8ff;
+}
+
+.register-feature-list {
+	margin: 0;
+	padding: 16px 18px 16px 36px;
+	border-radius: 22px;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	color: #dbeafe;
+	display: grid;
+	gap: 8px;
+	line-height: 1.5;
+}
+
+.sprite-selector-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.sprite-selector-list li {
+	min-width: 0;
+}
+
+.sprite-option {
+	width: 100%;
+	min-height: 160px;
+	padding: 16px 12px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	background: rgba(255, 255, 255, 0.08);
+	border: 2px solid rgba(255, 255, 255, 0.08);
+	border-radius: 22px;
+	color: #ffffff;
+	box-shadow: 0 16px 24px rgba(0, 0, 0, 0.12);
+	transition: transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+
+.sprite-option:hover,
+.sprite-option:focus {
+	transform: translateY(-2px);
+	border-color: rgba(255, 255, 255, 0.22);
+	background: rgba(255, 255, 255, 0.12);
+}
+
+.sprite-option img {
+	width: 84px;
+	height: 84px;
+	image-rendering: pixelated;
+	object-fit: contain;
+}
+
+.sprite-option span {
+	font-weight: 700;
+}
+
+.sprite-option.is-selected {
+	border-color: #f7d02c;
+	background: rgba(247, 208, 44, 0.16);
+	box-shadow: 0 0 0 3px rgba(247, 208, 44, 0.2), 0 18px 28px rgba(247, 208, 44, 0.14);
+}
+
+.sprite-option.is-disabled {
+	opacity: 0.65;
+}
+
+.register-tip-card {
+	padding: 16px 18px;
+	border-radius: 20px;
+	background: rgba(7, 13, 24, 0.32);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	color: #f8fbff;
+}
+
+.register-tip-card strong,
+.register-tip-card p {
+	margin: 0;
+}
+
+.register-tip-card p {
+	margin-top: 6px;
+	color: #d8e6f7;
+	line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+	.selected-sprite-card {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+@media (max-width: 720px) {
+	.sprite-selector-list {
+		grid-template-columns: 1fr;
+	}
+}

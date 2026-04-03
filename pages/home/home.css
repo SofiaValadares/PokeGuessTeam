@@ -1,0 +1,21 @@
+.home-screen {
+    min-height: 100%;
+}
+
+.pokedex-screen-left.home-screen {
+    background:
+        radial-gradient(circle at top left, rgba(255, 209, 102, 0.12), transparent 34%),
+        linear-gradient(180deg, #0f274f 0%, #08192f 100%);
+}
+
+.pokedex-screen-right.home-screen {
+    background:
+        radial-gradient(circle at top right, rgba(255, 213, 79, 0.16), transparent 28%),
+        linear-gradient(180deg, #ffffff 0%, #eef3fb 100%);
+}
+
+@media (max-width: 960px) {
+}
+
+@media (max-width: 720px) {
+}

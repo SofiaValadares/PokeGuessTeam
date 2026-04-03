@@ -83,8 +83,8 @@ Botao de desistir da partida
 
 
 
-O jogo completa todos os pokemons, sera necessario buscar as informacos nesssario buscar as informacoes dos 
-pokemons usando https://pokeapi.co/api/v2/pokemon-species/aegislash e criar uma arquivo js pokemonData, onde há uma lista de todos
+O jogo ate o momento so tem os pokemons iniciais de cada geracao e suas linhas evolutivas, sera necessario buscar as informacos nesssario buscar as informacoes dos 
+pokemons usando https://pokeapi.co/api/v2/pokemon-species/ e criar uma arquivo js pokemonData, onde há uma lista de todos
 os pokemons usando a classe ./models/pokemon
 As imagens dos pokemons estao em ./assets/pokemon e estao nomeadas de acordo com seus numneros da dex um um formato XXXX.png (ex.: 0151.png é o Mew)
 Os creditos dessas imagens devem estar disponiveis, como um botao ou um texto com link para o ./sprits_cedits.txt

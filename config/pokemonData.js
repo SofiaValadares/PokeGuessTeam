@@ -831,3 +831,25 @@ export const pokemonData = [
     weight: 61.9
   }),
 ];
+
+export const pokemonDataMap = new Map(
+  pokemonData.map(pokemon => [pokemon.name.toLowerCase(), pokemon])
+);
+
+export function getPokemonByName(pokemonName) {
+  return pokemonDataMap.get(String(pokemonName).toLowerCase()) ?? null;
+}
+
+export function getPokemonByNames(names = []) {
+  return names.map(name => getPokemonByName(name)).filter(Boolean);
+}
+
+export function getPokemonOptions() {
+  return pokemonData.map(pokemon => ({
+    name: pokemon.name,
+    image_src: pokemon.image_src,
+    generation: pokemon.generation,
+    primary_type: pokemon.primary_type,
+    secondary_type: pokemon.secondary_type,
+  }));
+}

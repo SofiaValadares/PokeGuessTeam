@@ -1,18 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokemon List</title>
-</head>
-<body>
-    <h1>Pokemon List</h1>
-    <ul>
-        <li>Pikachu</li>
-        <li>Bulbasaur</li>
-        <li>Charmander</li>
-    </ul>
-    <link rel="stylesheet" href="../../ds/variables.css">
-    <link rel="stylesheet" href="../../ds/global.css">
-</body>
-</html>
+<section class="pokemon-list-card">
+    <div class="pokemon-list-card__header">
+        <div>
+            <p class="pokemon-list-card__eyebrow">Pokédex local</p>
+            <h3>Escolha seus pokémon</h3>
+        </div>
+        <p class="pokemon-list-card__description">Use a busca para montar o time com os iniciais de cada geração.</p>
+    </div>
+
+    <div class="pokemon-list-toolbar">
+        <label class="pokemon-list-toolbar__field" for="pokemonSearchInput">
+            <span>Buscar por nome</span>
+            <input id="pokemonSearchInput" type="search" placeholder="Ex.: Charizard">
+        </label>
+        <label class="pokemon-list-toolbar__field" for="pokemonGenerationFilter">
+            <span>Geração</span>
+            <select id="pokemonGenerationFilter">
+                <option value="all">Todas</option>
+            </select>
+        </label>
+    </div>
+
+    <ul id="pokemonListGrid" class="pokemon-list-grid"></ul>
+    <p id="pokemonListEmptyState" class="pokemon-list-empty is-hidden">Nenhum pokémon encontrado com esse filtro.</p>
+</section>

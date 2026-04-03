@@ -1,0 +1,18 @@
+<section class="register-card register-card--form">
+	<div class="register-section-heading">
+		<h2>Registro de treinador</h2>
+	</div>
+
+	<form id="registerPlayerForm" class="player-form" novalidate>
+		<label class="player-form__field" for="registerPlayerName">
+			<span>Digite seu nome</span>
+			<input id="registerPlayerName" name="playerName" type="text" maxlength="20" placeholder="Ex.: Red" autocomplete="off">
+		</label>
+
+		<p id="registerFormStatus" class="player-form__status is-hidden" role="status" aria-live="polite"></p>
+
+		<div class="player-form__actions">
+			<button id="registerCreateButton" type="submit">Criar perfil</button>
+		</div>
+	</form>
+</section>

@@ -1,0 +1,71 @@
+<section class="home-card home-card--profile">
+    <div class="home-card__header">
+        <p class="home-card__eyebrow">Perfil do jogador</p>
+    </div>
+
+    <div class="home-player-hero">
+        <div class="home-player-hero__avatar-wrap">
+            <img id="homePlayerAvatar" class="home-player-hero__avatar" src="assets/player/001P.png" alt="Avatar do jogador principal">
+        </div>
+        <div class="home-player-hero__content">
+            <h3 id="homePlayerName">Treinador</h3>
+            <div class="home-player-hero__chips">
+                <span id="homePlayerLevel" class="home-chip">Nível 1</span>
+            </div>
+            <div class="player-summary__progress">
+			<div class="player-summary__progress-bar">
+				<span id="homeSummaryProgressBar"></span>
+			</div>
+			<p id="homeSummaryProgressText">0 / 100 XP no nível atual</p>
+		</div>
+        </div>
+    </div>
+
+    <div class="home-actions">
+        <button id="homeEditProfileButton" type="button" class="button-danger">Deletar perfil</button>
+        <button id="homeStartMatchButton" type="button">Iniciar partida local</button>
+        <button id="homeContinueMatchButton" type="button" class="button-secondary is-hidden">Continuar partida</button>
+    </div>
+
+    <section id="homeCurrentMatchCard" class="home-current-match is-hidden">
+        <div class="home-current-match__header">
+            <h3>Partida salva</h3>
+            <button id="homeCurrentMatchButton" type="button" class="home-current-match__button button-secondary">Voltar para a partida</button>
+        </div>
+
+        <div class="home-current-match__body">
+            <p id="homeCurrentMatchDescription">Há uma partida local em andamento.</p>
+            <div class="home-current-match__score">
+                <strong id="homeCurrentMatchScore">0 x 0</strong>
+                <small id="homeCurrentMatchTurn">Aguardando continuação</small>
+            </div>
+        </div>
+    </section>
+
+    <dialog id="homeDeleteProfileDialog" class="home-dialog">
+        <div class="home-dialog__content">
+            <h3>Deletar perfil?</h3>
+            <p>Essa ação remove o jogador principal salvo neste navegador e limpa a partida atual.</p>
+            <div class="home-dialog__actions">
+                <button id="homeDeleteProfileCancelButton" type="button" class="button-secondary">Cancelar</button>
+                <button id="homeDeleteProfileConfirmButton" type="button" class="button-danger">Confirmar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="homeStartMatchDialog" class="home-dialog">
+        <div class="home-dialog__content">
+            <h3>Nova partida local</h3>
+            <p>Digite o nome do adversário antes de seguir para a montagem dos times.</p>
+            <label class="home-dialog__field" for="homeGuestNameInput">
+                <span>Nome do adversário</span>
+                <input id="homeGuestNameInput" type="text" maxlength="20" placeholder="Ex.: Rafael">
+            </label>
+            <p id="homeStartMatchError" class="home-dialog__error is-hidden" role="status" aria-live="polite"></p>
+            <div class="home-dialog__actions">
+                <button id="homeStartMatchCancelButton" type="button" class="button-secondary">Cancelar</button>
+                <button id="homeStartMatchConfirmButton" type="button">Continuar</button>
+            </div>
+        </div>
+    </dialog>
+</section>
