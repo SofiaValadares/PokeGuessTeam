@@ -13,12 +13,6 @@ export function setupControlSide(container, callbacks = {}) {
 	const losses = container.querySelector('#homeLosses');
 	const deleteProfileButton = container.querySelector('#homeEditProfileButton');
 	const startMatchButton = container.querySelector('#homeStartMatchButton');
-	const continueMatchButton = container.querySelector('#homeContinueMatchButton');
-	const currentMatchCard = container.querySelector('#homeCurrentMatchCard');
-	const currentMatchButton = container.querySelector('#homeCurrentMatchButton');
-	const currentMatchDescription = container.querySelector('#homeCurrentMatchDescription');
-	const currentMatchScore = container.querySelector('#homeCurrentMatchScore');
-	const currentMatchTurn = container.querySelector('#homeCurrentMatchTurn');
 	const deleteProfileDialog = container.querySelector('#homeDeleteProfileDialog');
 	const deleteProfileCancelButton = container.querySelector('#homeDeleteProfileCancelButton');
 	const deleteProfileConfirmButton = container.querySelector('#homeDeleteProfileConfirmButton');
@@ -28,7 +22,7 @@ export function setupControlSide(container, callbacks = {}) {
 	const startMatchCancelButton = container.querySelector('#homeStartMatchCancelButton');
 	const startMatchConfirmButton = container.querySelector('#homeStartMatchConfirmButton');
 
-	if (!avatar || !nameElement || !deleteProfileButton || !startMatchButton || !continueMatchButton) {
+	if (!avatar || !nameElement || !deleteProfileButton || !startMatchButton) {
 		throw new Error('Estrutura do painel lateral da Home está incompleta.');
 	}
 
@@ -100,14 +94,6 @@ export function setupControlSide(container, callbacks = {}) {
 		}
 	});
 
-	continueMatchButton.addEventListener('click', () => {
-		callbacks.onContinueMatch?.();
-	});
-
-	currentMatchButton?.addEventListener('click', () => {
-		callbacks.onContinueMatch?.();
-	});
-
 	function setProfileSummary(summary) {
 		avatar.src = summary.avatar;
 		avatar.alt = `Avatar de ${summary.name}`;
@@ -155,26 +141,7 @@ export function setupControlSide(container, callbacks = {}) {
 		}
 	}
 
-	function setContinuableMatch(matchSummary = null) {
-		const hasMatch = Boolean(matchSummary);
-		continueMatchButton.classList.toggle('is-hidden', !hasMatch);
-		currentMatchCard.classList.toggle('is-hidden', !hasMatch);
-
-		if (!hasMatch) {
-			return;
-		}
-
-		continueMatchButton.textContent = matchSummary.buttonLabel;
-		if (currentMatchButton) {
-			currentMatchButton.textContent = matchSummary.buttonLabel;
-		}
-		currentMatchDescription.textContent = matchSummary.description;
-		currentMatchScore.textContent = matchSummary.scoreText;
-		currentMatchTurn.textContent = matchSummary.turnText;
-	}
-
 	return {
 		setProfileSummary,
-		setContinuableMatch,
 	};
 }

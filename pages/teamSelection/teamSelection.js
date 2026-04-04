@@ -142,7 +142,7 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 	matchHandler.saveMatch(match);
 
 	teamSideController.setContext({
-		role: isPrincipalStep ? 'Jogador principal' : 'Jogador convidado',
+		role: '',
 		avatar: isPrincipalStep ? player.avatar : guestSprite.path,
 		avatarAlt: isPrincipalStep ? `Avatar de ${principalName}` : 'Avatar do jogador convidado',
 		name: isPrincipalStep ? principalName : (guestName || 'Convidado'),
