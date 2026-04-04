@@ -15,9 +15,21 @@ export function setupGuessBoard(container, callbacks = {}) {
 		throw new Error('Estrutura do painel de adivinhação está incompleta.');
 	}
 
+	function syncPlaceholder() {
+		const placeholderText = guessSearch.dataset.placeholder || guessSearch.getAttribute('placeholder') || '';
+		guessSearch.placeholder = placeholderText;
+	}
+
+	guessSearch.value = '';
+	syncPlaceholder();
+
+	guessSearch.addEventListener('input', () => {
+		clearFeedback();
+	});
+
 	guessForm.addEventListener('submit', event => {
 		event.preventDefault();
-		callbacks.onSubmitGuess?.(guessSearch.value);
+		callbacks.onSubmitGuess?.(guessSearch.value.trim());
 	});
 
 	function setTurnInfo({ title, subtitle, currentTurn, roundLabel, guessedCountText }) {
@@ -57,6 +69,7 @@ export function setupGuessBoard(container, callbacks = {}) {
 
 	function clearGuessInput() {
 		guessSearch.value = '';
+		syncPlaceholder();
 	}
 
 	return {

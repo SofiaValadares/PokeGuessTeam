@@ -9,23 +9,21 @@
         <article class="game-player-card" id="gamePrimaryPlayerCard">
             <div class="game-player-card__top">
                 <img id="gamePrimaryPlayerAvatar" src="assets/player/001P.png" alt="Avatar do jogador principal">
-                <div>
-                    <span class="game-player-card__badge">Principal</span>
-                    <strong id="gamePrimaryPlayerName">Jogador Principal</strong>
+                <div class="game-player-card__identity">
+                    <span id="gamePrimaryPlayerBadge" class="game-player-card__badge">Jogador Principal</span>
+                    <strong id="gamePrincipalScore" class="game-player-card__score">0</strong>
                 </div>
             </div>
-            <strong id="gamePrincipalScore" class="game-player-card__score">0</strong>
         </article>
 
         <article class="game-player-card" id="gameGuestPlayerCard">
             <div class="game-player-card__top">
                 <img id="gameGuestPlayerAvatar" src="assets/player/002P.png" alt="Avatar do jogador convidado">
-                <div>
-                    <span class="game-player-card__badge">Convidado</span>
-                    <strong id="gameGuestPlayerName">Jogador Convidado</strong>
+                <div class="game-player-card__identity">
+                    <span id="gameGuestPlayerBadge" class="game-player-card__badge">Jogador Convidado</span>
+                    <strong id="gameGuestScore" class="game-player-card__score">0</strong>
                 </div>
             </div>
-            <strong id="gameGuestScore" class="game-player-card__score">0</strong>
         </article>
     </div>
 
@@ -36,11 +34,11 @@
         </div>
         <div class="game-hit-panel__columns">
             <div>
-                <p class="game-player-card__list-title">Principal</p>
+                <p id="gamePrimaryHitsTitle" class="game-player-card__list-title">Jogador principal</p>
                 <ul id="gamePrimaryHits" class="game-hit-list"></ul>
             </div>
             <div>
-                <p class="game-player-card__list-title">Convidado</p>
+                <p id="gameGuestHitsTitle" class="game-player-card__list-title">Jogador convidado</p>
                 <ul id="gameGuestHits" class="game-hit-list"></ul>
             </div>
         </div>

@@ -18,7 +18,7 @@ function buildRouteSegments(match) {
 }
 
 function fetchHtml(filePath) {
-	return fetch(filePath).then(response => {
+	return fetch(filePath, { cache: 'no-store' }).then(response => {
 		if (!response.ok) {
 			throw new Error(`Não foi possível carregar ${filePath}.`);
 		}
@@ -122,9 +122,7 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		const topRow = document.createElement('div');
 		topRow.className = 'game-opponent-slot__top';
 		const middleRow = document.createElement('div');
-		middleRow.className = 'game-opponent-slot__row';
-		const colorRow = document.createElement('div');
-		colorRow.className = 'game-opponent-slot__row';
+		middleRow.className = 'game-opponent-slot__row game-opponent-slot__row--with-color';
 		const heightRow = document.createElement('div');
 		heightRow.className = 'game-opponent-slot__row';
 		const weightRow = document.createElement('div');
@@ -137,9 +135,9 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 			return tag;
 		}
 
-		function createStatLabel(label, value) {
+		function createStatLabel(label, value, extraClass = '') {
 			const stat = document.createElement('span');
-			stat.className = 'game-opponent-slot__label';
+			stat.className = `game-opponent-slot__label${extraClass ? ` ${extraClass}` : ''}`;
 			stat.textContent = `${label}: ${value}`;
 			return stat;
 		}
@@ -157,12 +155,11 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 			placeholder.textContent = '?';
 			media.appendChild(placeholder);
 
-			topRow.append(createTag('NENHUM', true), createTag('NENHUM', true));
-			middleRow.append(createStatLabel('GEN', '?'), createCounter('↓', 0), createCounter('↑', 0));
-			colorRow.append(createStatLabel('Cor', '?'));
-			heightRow.append(createStatLabel('Altura', '?'), createCounter('↓', 0), createCounter('↑', 0));
-			weightRow.append(createStatLabel('Peso', '?'), createCounter('↓', 0), createCounter('↑', 0));
-			content.append(topRow, middleRow, colorRow, heightRow, weightRow);
+			topRow.append(createTag('???', true), createTag('???', true));
+			middleRow.append(createStatLabel('GEN', '?'), createCounter('↓', 0), createCounter('↑', 0), createStatLabel('Cor', '?', 'game-opponent-slot__label--color'));
+			heightRow.append(createStatLabel('ALT', '?'), createCounter('↓', 0), createCounter('↑', 0));
+			weightRow.append(createStatLabel('PES', '?'), createCounter('↓', 0), createCounter('↑', 0));
+			content.append(topRow, middleRow, heightRow, weightRow);
 			slot.append(media, content);
 			return slot;
 		}
@@ -181,27 +178,27 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		}
 
 		topRow.append(
-			createTag(cardState.primaryType ?? 'NENHUM', !cardState.primaryType),
-			createTag(cardState.secondaryType ?? 'NENHUM', !cardState.secondaryType)
+			createTag(cardState.primaryType ?? '???', !cardState.primaryType),
+			createTag(cardState.secondaryType ?? '???', !cardState.secondaryType)
 		);
 		middleRow.append(
 			createStatLabel('GEN', cardState.generation.equal > 0 ? String(cardState.generation.equal).padStart(2, '0') : '?'),
 			createCounter('↓', cardState.generation.lower),
-			createCounter('↑', cardState.generation.higher)
+			createCounter('↑', cardState.generation.higher),
+			createStatLabel('Cor', cardState.color ?? '?', 'game-opponent-slot__label--color')
 		);
-		colorRow.append(createStatLabel('Cor', cardState.color ?? '?'));
 		heightRow.append(
-			createStatLabel('Altura', cardState.height.equal > 0 ? String(cardState.height.equal).padStart(2, '0') : '?'),
+			createStatLabel('ALT', cardState.height.equal > 0 ? String(cardState.height.equal).padStart(2, '0') : '?'),
 			createCounter('↓', cardState.height.lower),
 			createCounter('↑', cardState.height.higher)
 		);
 		weightRow.append(
-			createStatLabel('Peso', cardState.weight.equal > 0 ? String(cardState.weight.equal).padStart(2, '0') : '?'),
+			createStatLabel('PES', cardState.weight.equal > 0 ? String(cardState.weight.equal).padStart(2, '0') : '?'),
 			createCounter('↓', cardState.weight.lower),
 			createCounter('↑', cardState.weight.higher)
 		);
 
-		content.append(topRow, middleRow, colorRow, heightRow, weightRow);
+		content.append(topRow, middleRow, heightRow, weightRow);
 		slot.append(media, content);
 		return slot;
 	}
@@ -253,7 +250,9 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 					state.primaryType = String(opponentPokemon.primary_type).toUpperCase();
 				}
 
-				if (guessedPokemon.secondary_type && guessedPokemon.secondary_type === opponentPokemon.secondary_type) {
+				if (!guessedPokemon.secondary_type && !opponentPokemon.secondary_type) {
+					state.secondaryType = 'NENHUM';
+				} else if (guessedPokemon.secondary_type && guessedPokemon.secondary_type === opponentPokemon.secondary_type) {
 					state.secondaryType = String(opponentPokemon.secondary_type).toUpperCase();
 				}
 
@@ -316,21 +315,7 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		turnControlController.setPlayers(match);
 	}
 
-	function renderTurnInfo() {
-		const currentPlayer = match.getPlayer(match.currentTurn);
-		guessBoardController.setTurnInfo({
-			title: `Vez de ${currentPlayer.name}`,
-			subtitle: `Os 6 cards acima representam o time adversário de ${currentPlayer.name} com as pistas acumuladas até agora.`,
-			currentTurn: currentPlayer.name,
-			roundLabel: match.finalResponseFor
-				? `Rodada extra de ${match.getPlayer(match.finalResponseFor).name}`
-				: 'Partida em andamento',
-			guessedCountText: `${getGuessedNames().size} ${getGuessedNames().size === 1 ? 'palpite único' : 'palpites únicos'}`,
-		});
-	}
-
 	function render() {
-		renderTurnInfo();
 		renderGuessHistory(match.currentTurn);
 		renderPlayerCards();
 		renderGuessOptions();
@@ -377,15 +362,9 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 
 	function handleGuessSubmit(guessValue) {
 		const guessedPokemon = getPokemonByName(guessValue);
-		const guessedNames = getGuessedNames();
 
 		if (!guessedPokemon) {
 			guessBoardController.setFeedback('Selecione um pokémon válido para continuar.', 'error');
-			return;
-		}
-
-		if (guessedNames.has(guessedPokemon.name.toLowerCase())) {
-			guessBoardController.setFeedback('Esse pokémon já foi chutado na partida.', 'error');
 			return;
 		}
 

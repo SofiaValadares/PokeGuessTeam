@@ -101,6 +101,11 @@
     min-height: 48px;
 }
 
+.game-guess-form__field input::placeholder {
+    color: rgba(15, 23, 42, 0.58);
+    opacity: 1;
+}
+
 .game-opponent-panel {
     display: flex;
     flex-direction: column;
@@ -159,9 +164,9 @@
 .game-opponent-slot {
     display: flex;
     align-items: stretch;
-    gap: 16px;
+    gap: 12px;
     min-height: 180px;
-    padding: 18px;
+    padding: 16px;
     border-radius: 26px;
     background:
 		linear-gradient(135deg, rgba(239, 68, 68, 0.96) 0%, rgba(220, 38, 38, 0.9) 100%),
@@ -189,7 +194,7 @@
 }
 
 .game-opponent-slot__media {
-    width: 130px;
+    width: 116px;
     min-height: 100%;
     border-radius: 20px;
     display: flex;
@@ -203,8 +208,8 @@
 }
 
 .game-opponent-slot__media img {
-    width: 82px;
-    height: 82px;
+    width: 74px;
+    height: 74px;
     object-fit: contain;
     image-rendering: pixelated;
 }
@@ -219,7 +224,7 @@
 .game-opponent-slot__content {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     min-width: 0;
     flex: 1;
     position: relative;
@@ -230,11 +235,15 @@
 .game-opponent-slot__row {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    gap: 6px;
 }
 
 .game-opponent-slot__top {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.game-opponent-slot__row--with-color {
+    grid-template-columns: minmax(0, 0.82fr) minmax(56px, 0.56fr) minmax(56px, 0.56fr) minmax(0, 0.98fr);
 }
 
 .game-opponent-slot__tag,
@@ -243,15 +252,46 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 46px;
-    padding: 0 14px;
-    border-radius: 18px;
+    min-height: 38px;
+    padding: 6px 10px;
+    border-radius: 14px;
     border: 2px solid rgba(255, 255, 255, 0.6);
     background: rgba(255, 255, 255, 0.12);
     color: #fff7ed;
     font-weight: 800;
-    font-size: 0.92rem;
-    letter-spacing: 0.03em;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.game-opponent-slot__tag {
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    line-height: 1.05;
+}
+
+.game-opponent-slot__label,
+.game-opponent-slot__counter {
+    min-height: 34px;
+    padding: 4px 6px;
+    font-size: 0.72rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.game-opponent-slot__row--with-color .game-opponent-slot__label,
+.game-opponent-slot__row--with-color .game-opponent-slot__counter {
+    min-height: 32px;
+    padding: 3px 5px;
+    font-size: 0.64rem;
 }
 
 .game-opponent-slot__tag.is-muted,
@@ -267,9 +307,21 @@
     justify-content: flex-start;
 }
 
+.game-opponent-slot__counter {
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+}
+
 .game-opponent-slot__row .game-opponent-slot__label:first-child {
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.6);
+    color: #fff7ed;
+    box-shadow: none;
+}
+
+.game-opponent-slot__row--with-color .game-opponent-slot__label--color {
+    background: rgba(220, 38, 38, 0.9);
+    border-color: rgba(254, 202, 202, 0.8);
     color: #fff7ed;
     box-shadow: none;
 }

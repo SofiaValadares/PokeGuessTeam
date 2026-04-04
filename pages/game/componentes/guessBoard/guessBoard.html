@@ -20,10 +20,9 @@
         <ul id="gameOpponentSlots" class="game-opponent-slots"></ul>
     </section>
 
-    <form id="gameGuessForm" class="game-guess-form">
+    <form id="gameGuessForm" class="game-guess-form" autocomplete="off">
         <label class="game-guess-form__field" for="gameGuessSearch">
-            <span>Buscar pokémon para o chute</span>
-            <input id="gameGuessSearch" type="search" list="gameGuessOptions" placeholder="Ex.: Pikachu" autocomplete="off">
+            <input id="gameGuessSearch" type="text" list="gameGuessOptions" placeholder="Busque um pokémon para o chute" data-placeholder="Busque um pokémon para o chute" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
         </label>
         <datalist id="gameGuessOptions"></datalist>
         <button id="gameGuessButton" type="submit">Confirmar palpite</button>

@@ -15,7 +15,7 @@
 
 .game-scoreboard {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 12px;
 }
 
@@ -42,6 +42,13 @@
     display: flex;
     gap: 12px;
     align-items: center;
+}
+
+.game-player-card__identity {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
 }
 
 .game-player-card__top img {
