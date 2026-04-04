@@ -30,22 +30,15 @@
     <section class="game-hit-panel">
         <div class="game-clue-panel__header">
             <h3>Pokémons acertados</h3>
-            <span>Por jogador</span>
+            <span>Do oponente</span>
         </div>
-        <div class="game-hit-panel__columns">
-            <div>
-                <p id="gamePrimaryHitsTitle" class="game-player-card__list-title">Jogador principal</p>
-                <ul id="gamePrimaryHits" class="game-hit-list"></ul>
-            </div>
-            <div>
-                <p id="gameGuestHitsTitle" class="game-player-card__list-title">Jogador convidado</p>
-                <ul id="gameGuestHits" class="game-hit-list"></ul>
-            </div>
+        <div class="game-hit-panel__content">
+            <p id="gameOpponentHitsTitle" class="game-player-card__list-title">Oponente</p>
+            <ul id="gameOpponentHits" class="game-hit-list game-hit-list--sprites"></ul>
         </div>
     </section>
 
     <div class="game-actions">
-        <button id="gameGoHomeButton" type="button" class="button-secondary">Voltar para Home</button>
         <button id="gameSurrenderButton" type="button" class="button-danger">Desistir da partida</button>
     </div>
 
@@ -72,7 +65,6 @@
         <div class="game-dialog__content">
             <h3>Fim de partida</h3>
             <p id="gameEndDialogMessage">Resultado final da batalha local.</p>
-            <button id="gameEndDialogButton" type="button">Voltar para Home</button>
         </div>
     </dialog>
 </section>

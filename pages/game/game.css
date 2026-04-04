@@ -48,8 +48,7 @@
 
 @media (max-width: 720px) {
     .game-guess-form,
-    .game-scoreboard,
-	.game-hit-panel__columns {
+    .game-scoreboard {
         grid-template-columns: 1fr;
     }
 
@@ -64,10 +63,6 @@
 
     .game-card {
         padding: 18px;
-    }
-
-    .game-pill--muted {
-        margin-left: 0;
     }
 
     .game-opponent-slot__row,

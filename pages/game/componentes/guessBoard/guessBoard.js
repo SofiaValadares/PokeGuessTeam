@@ -1,9 +1,4 @@
 export function setupGuessBoard(container, callbacks = {}) {
-	const guessTitle = container.querySelector('#gameGuessTitle');
-	const guessSubtitle = container.querySelector('#gameGuessSubtitle');
-	const currentTurnLabel = container.querySelector('#gameCurrentTurnLabel');
-	const roundStatus = container.querySelector('#gameRoundStatus');
-	const guessedCount = container.querySelector('#gameGuessedCount');
 	const opponentSlots = container.querySelector('#gameOpponentSlots');
 	const guessForm = container.querySelector('#gameGuessForm');
 	const guessSearch = container.querySelector('#gameGuessSearch');
@@ -11,7 +6,7 @@ export function setupGuessBoard(container, callbacks = {}) {
 	const guessButton = container.querySelector('#gameGuessButton');
 	const feedbackStatus = container.querySelector('#gameGuessFeedbackStatus');
 
-	if (!guessTitle || !guessForm || !guessSearch || !guessOptions || !opponentSlots) {
+	if (!guessForm || !guessSearch || !guessOptions || !opponentSlots) {
 		throw new Error('Estrutura do painel de adivinhação está incompleta.');
 	}
 
@@ -23,22 +18,10 @@ export function setupGuessBoard(container, callbacks = {}) {
 	guessSearch.value = '';
 	syncPlaceholder();
 
-	guessSearch.addEventListener('input', () => {
-		clearFeedback();
-	});
-
 	guessForm.addEventListener('submit', event => {
 		event.preventDefault();
 		callbacks.onSubmitGuess?.(guessSearch.value.trim());
 	});
-
-	function setTurnInfo({ title, subtitle, currentTurn, roundLabel, guessedCountText }) {
-		guessTitle.textContent = title;
-		guessSubtitle.textContent = subtitle;
-		currentTurnLabel.textContent = currentTurn;
-		roundStatus.textContent = roundLabel;
-		guessedCount.textContent = guessedCountText;
-	}
 
 	function setGuessOptions(options = []) {
 		guessOptions.replaceChildren(...options.map(name => {
@@ -53,11 +36,19 @@ export function setupGuessBoard(container, callbacks = {}) {
 	}
 
 	function setFeedback(message, type = 'info') {
+		if (!feedbackStatus) {
+			return;
+		}
+
 		feedbackStatus.textContent = message;
 		feedbackStatus.className = `game-feedback-status is-${type}`;
 	}
 
 	function clearFeedback() {
+		if (!feedbackStatus) {
+			return;
+		}
+
 		feedbackStatus.textContent = '';
 		feedbackStatus.className = 'game-feedback-status is-hidden';
 	}
@@ -73,7 +64,6 @@ export function setupGuessBoard(container, callbacks = {}) {
 	}
 
 	return {
-		setTurnInfo,
 		setGuessOptions,
 		setOpponentSlots,
 		setFeedback,

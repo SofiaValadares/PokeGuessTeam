@@ -36,6 +36,8 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 	const historyHandler = new HistoryHander(playerHandler);
 	const player = playerHandler.getPlayer();
 	const match = matchHandler.getMatch();
+	let turnTransitionTimeoutId = null;
+	let endDialogRedirectTimeoutId = null;
 
 	if (!player) {
 		routeContext.navigateTo?.('register');
@@ -93,12 +95,6 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		onCloseStart: () => {
 			turnControlController.closeStartDialog();
 		},
-		onCloseEnd: () => {
-			turnControlController.closeEndDialog();
-			matchHandler.clearMatch();
-			routeContext.refreshNavigation?.();
-			routeContext.navigateTo?.('home');
-		},
 	});
 
 	guessBoardController.setGuessOptions(pokemonData.map(pokemon => pokemon.name));
@@ -122,44 +118,41 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		const topRow = document.createElement('div');
 		topRow.className = 'game-opponent-slot__top';
 		const middleRow = document.createElement('div');
-		middleRow.className = 'game-opponent-slot__row game-opponent-slot__row--with-color';
-		const heightRow = document.createElement('div');
-		heightRow.className = 'game-opponent-slot__row';
-		const weightRow = document.createElement('div');
-		weightRow.className = 'game-opponent-slot__row';
+		middleRow.className = 'game-opponent-slot__row';
+		const bottomRow = document.createElement('div');
+		bottomRow.className = 'game-opponent-slot__row';
 
-		function createTag(text, muted = false) {
+		function createTag(text, isKnown = false) {
 			const tag = document.createElement('span');
-			tag.className = `game-opponent-slot__tag${muted ? ' is-muted' : ''}`;
+			tag.className = `game-opponent-slot__tag ${isKnown ? 'is-known' : 'is-unknown'}`;
 			tag.textContent = text;
 			return tag;
 		}
 
-		function createStatLabel(label, value, extraClass = '') {
+		function createStatLabel(label, value, extraClass = '', isKnown = false) {
 			const stat = document.createElement('span');
-			stat.className = `game-opponent-slot__label${extraClass ? ` ${extraClass}` : ''}`;
+			stat.className = `game-opponent-slot__label ${isKnown ? 'is-known' : 'is-unknown'}${extraClass ? ` ${extraClass}` : ''}`;
 			stat.textContent = `${label}: ${value}`;
 			return stat;
-		}
-
-		function createCounter(direction, value) {
-			const counter = document.createElement('span');
-			counter.className = 'game-opponent-slot__counter';
-			counter.textContent = `${direction} ${String(value).padStart(2, '0')}`;
-			return counter;
 		}
 
 		if (!cardState) {
 			media.classList.add('is-empty');
 			const placeholder = document.createElement('span');
-			placeholder.textContent = '?';
+			placeholder.className = 'game-opponent-slot__media-text';
+			placeholder.textContent = '???';
 			media.appendChild(placeholder);
 
-			topRow.append(createTag('???', true), createTag('???', true));
-			middleRow.append(createStatLabel('GEN', '?'), createCounter('↓', 0), createCounter('↑', 0), createStatLabel('Cor', '?', 'game-opponent-slot__label--color'));
-			heightRow.append(createStatLabel('ALT', '?'), createCounter('↓', 0), createCounter('↑', 0));
-			weightRow.append(createStatLabel('PES', '?'), createCounter('↓', 0), createCounter('↑', 0));
-			content.append(topRow, middleRow, heightRow, weightRow);
+			topRow.append(createTag('???'), createTag('???'));
+			middleRow.append(
+				createStatLabel('GEN', '???'),
+				createStatLabel('Cor', '???')
+			);
+			bottomRow.append(
+				createStatLabel('ALT', '???'),
+				createStatLabel('PES', '???')
+			);
+			content.append(topRow, middleRow, bottomRow);
 			slot.append(media, content);
 			return slot;
 		}
@@ -173,52 +166,27 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		} else {
 			media.classList.add('is-empty');
 			const mark = document.createElement('span');
-			mark.textContent = '?';
+			mark.className = 'game-opponent-slot__media-text';
+			mark.textContent = '???';
 			media.appendChild(mark);
 		}
 
 		topRow.append(
-			createTag(cardState.primaryType ?? '???', !cardState.primaryType),
-			createTag(cardState.secondaryType ?? '???', !cardState.secondaryType)
+			createTag(cardState.primaryType ?? '???', Boolean(cardState.primaryType)),
+			createTag(cardState.secondaryType ?? '???', Boolean(cardState.secondaryType))
 		);
 		middleRow.append(
-			createStatLabel('GEN', cardState.generation.equal > 0 ? String(cardState.generation.equal).padStart(2, '0') : '?'),
-			createCounter('↓', cardState.generation.lower),
-			createCounter('↑', cardState.generation.higher),
-			createStatLabel('Cor', cardState.color ?? '?', 'game-opponent-slot__label--color')
+			createStatLabel('GEN', cardState.generation ?? '???', '', Boolean(cardState.generation)),
+			createStatLabel('Cor', cardState.color ?? '???', '', Boolean(cardState.color))
 		);
-		heightRow.append(
-			createStatLabel('ALT', cardState.height.equal > 0 ? String(cardState.height.equal).padStart(2, '0') : '?'),
-			createCounter('↓', cardState.height.lower),
-			createCounter('↑', cardState.height.higher)
-		);
-		weightRow.append(
-			createStatLabel('PES', cardState.weight.equal > 0 ? String(cardState.weight.equal).padStart(2, '0') : '?'),
-			createCounter('↓', cardState.weight.lower),
-			createCounter('↑', cardState.weight.higher)
+		bottomRow.append(
+			createStatLabel('ALT', cardState.height ?? '???', '', Boolean(cardState.height)),
+			createStatLabel('PES', cardState.weight ?? '???', '', Boolean(cardState.weight))
 		);
 
-		content.append(topRow, middleRow, heightRow, weightRow);
+		content.append(topRow, middleRow, bottomRow);
 		slot.append(media, content);
 		return slot;
-	}
-
-	function createComparisonBucket() {
-		return { lower: 0, equal: 0, higher: 0 };
-	}
-
-	function applyComparison(bucket, guessValue, targetValue) {
-		if (targetValue < guessValue) {
-			bucket.lower += 1;
-			return;
-		}
-
-		if (targetValue > guessValue) {
-			bucket.higher += 1;
-			return;
-		}
-
-		bucket.equal += 1;
 	}
 
 	function buildOpponentCardStates(playerKey) {
@@ -234,9 +202,9 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 				primaryType: null,
 				secondaryType: null,
 				color: null,
-				generation: createComparisonBucket(),
-				height: createComparisonBucket(),
-				weight: createComparisonBucket(),
+				generation: null,
+				height: null,
+				weight: null,
 			};
 
 			currentPlayer.guesses.forEach(record => {
@@ -260,15 +228,26 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 					state.color = opponentPokemon.color;
 				}
 
-				applyComparison(state.generation, guessedPokemon.generation, opponentPokemon.generation);
-				applyComparison(state.height, guessedPokemon.height, opponentPokemon.height);
-				applyComparison(state.weight, guessedPokemon.weight, opponentPokemon.weight);
+				if (guessedPokemon.generation === opponentPokemon.generation) {
+					state.generation = String(opponentPokemon.generation).padStart(2, '0');
+				}
+
+				if (guessedPokemon.height === opponentPokemon.height) {
+					state.height = String(opponentPokemon.height);
+				}
+
+				if (guessedPokemon.weight === opponentPokemon.weight) {
+					state.weight = String(opponentPokemon.weight);
+				}
 			});
 
 			if (state.isRevealed) {
 				state.primaryType = String(opponentPokemon.primary_type).toUpperCase();
 				state.secondaryType = opponentPokemon.secondary_type ? String(opponentPokemon.secondary_type).toUpperCase() : 'NENHUM';
 				state.color = opponentPokemon.color;
+				state.generation = String(opponentPokemon.generation).padStart(2, '0');
+				state.height = String(opponentPokemon.height);
+				state.weight = String(opponentPokemon.weight);
 			}
 
 			return state;
@@ -277,7 +256,16 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 
 	function renderOpponentSlots(playerKey) {
 		const cards = buildOpponentCardStates(playerKey);
+		const hiddenPokemons = match.getOpponent(playerKey).team.filter(
+			pokemonName => !match.getPlayer(playerKey).hits.includes(pokemonName)
+		);
 		const slotNodes = [];
+
+		console.log(`[Guess Debug] Pokémons ocultos para ${match.getPlayer(playerKey).name}:`, hiddenPokemons);
+		console.table(hiddenPokemons.map((pokemonName, index) => ({
+			slot: index + 1,
+			pokemon: pokemonName,
+		})));
 
 		for (let index = 0; index < 6; index += 1) {
 			slotNodes.push(createOpponentKnowledgeSlot(cards[index] ?? null));
@@ -293,21 +281,22 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		]);
 	}
 
-	function renderGuessOptions() {
-		guessBoardController.setGuessOptions(pokemonData.map(pokemon => pokemon.name));
+	function getPlayerGuessedNames(playerKey) {
+		return new Set(
+			match.getPlayer(playerKey).guesses.map(item => String(item.guessName || '').toLowerCase())
+		);
+	}
+
+	function renderGuessOptions(playerKey) {
+		const guessedNames = getPlayerGuessedNames(playerKey);
+		guessBoardController.setGuessOptions(
+			pokemonData
+				.filter(pokemon => !guessedNames.has(pokemon.name.toLowerCase()))
+				.map(pokemon => pokemon.name)
+		);
 	}
 
 	function renderGuessHistory(playerKey) {
-		const currentPlayer = match.getPlayer(playerKey);
-		guessBoardController.setTurnInfo({
-			title: `Vez de ${currentPlayer.name}`,
-			subtitle: `Os 6 cards acima representam o time adversário de ${currentPlayer.name} com as pistas acumuladas até agora.`,
-			currentTurn: currentPlayer.name,
-			roundLabel: match.finalResponseFor
-				? `Rodada extra de ${match.getPlayer(match.finalResponseFor).name}`
-				: 'Partida em andamento',
-			guessedCountText: `${getGuessedNames().size} ${getGuessedNames().size === 1 ? 'palpite único' : 'palpites únicos'}`,
-		});
 		renderOpponentSlots(playerKey);
 	}
 
@@ -318,8 +307,22 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 	function render() {
 		renderGuessHistory(match.currentTurn);
 		renderPlayerCards();
-		renderGuessOptions();
+		renderGuessOptions(match.currentTurn);
 		guessBoardController.setDisabled(match.status === 'finished');
+	}
+
+	function clearPendingTurnTransition() {
+		if (turnTransitionTimeoutId) {
+			window.clearTimeout(turnTransitionTimeoutId);
+			turnTransitionTimeoutId = null;
+		}
+	}
+
+	function clearPendingEndRedirect() {
+		if (endDialogRedirectTimeoutId) {
+			window.clearTimeout(endDialogRedirectTimeoutId);
+			endDialogRedirectTimeoutId = null;
+		}
 	}
 
 	function resolvePrincipalResult(isSurrender = false, surrenderPlayer = null) {
@@ -354,21 +357,35 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		});
 
 		const endMessage = match.winner === 'draw'
-			? 'A partida terminou empatada após a rodada extra.'
-			: `${match.getPlayer(match.winner).name} venceu a partida.`;
+			? 'A partida terminou empatada após a rodada extra. Voltando para a Home...'
+			: `${match.getPlayer(match.winner).name} venceu a partida. Voltando para a Home...`;
 
+		clearPendingEndRedirect();
 		turnControlController.openEndDialog(endMessage);
+		endDialogRedirectTimeoutId = window.setTimeout(() => {
+			endDialogRedirectTimeoutId = null;
+			turnControlController.closeEndDialog();
+			matchHandler.clearMatch();
+			routeContext.refreshNavigation?.();
+			routeContext.navigateTo?.('home');
+		}, 3000);
 	}
 
 	function handleGuessSubmit(guessValue) {
 		const guessedPokemon = getPokemonByName(guessValue);
+		const currentTurn = match.currentTurn;
+		const currentPlayer = match.getPlayer(currentTurn);
+		const playerGuessedNames = getPlayerGuessedNames(currentTurn);
 
 		if (!guessedPokemon) {
 			guessBoardController.setFeedback('Selecione um pokémon válido para continuar.', 'error');
 			return;
 		}
 
-		const currentTurn = match.currentTurn;
+		if (playerGuessedNames.has(guessedPokemon.name.toLowerCase())) {
+			guessBoardController.setFeedback(`${currentPlayer.name} já chutou esse pokémon.`, 'error');
+			return;
+		}
 		const result = match.applyGuess(currentTurn, guessedPokemon, pokemonData);
 
 		if (result.error) {
@@ -376,9 +393,33 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 			return;
 		}
 
+		clearPendingTurnTransition();
 		matchHandler.saveMatch(match);
 		const successType = result.feedback.isExactMatch ? 'success' : 'info';
-		guessBoardController.setFeedback(result.feedback.isExactMatch ? `${guessedPokemon.name} pertence ao time adversário.` : `${guessedPokemon.name} não está no time adversário.`, successType);
+		guessBoardController.setFeedback(
+			result.feedback.isExactMatch
+				? `${guessedPokemon.name} pertence ao time adversário.`
+				: `${guessedPokemon.name} não está no time adversário.`,
+			successType
+		);
+
+		const shouldDelayTurnChange = result.outcome === 'switch-turn' || result.outcome === 'final-response' || result.outcome === 'finished-after-final-response';
+
+		if (shouldDelayTurnChange) {
+			guessBoardController.setDisabled(true);
+			turnTransitionTimeoutId = window.setTimeout(() => {
+				turnTransitionTimeoutId = null;
+				guessBoardController.clearGuessInput();
+				guessBoardController.clearFeedback();
+				render();
+
+				if (match.status === 'finished') {
+					finishGame();
+				}
+			}, 3000);
+			return;
+		}
+
 		guessBoardController.clearGuessInput();
 		render();
 

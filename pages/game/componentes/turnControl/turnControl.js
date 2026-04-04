@@ -1,7 +1,33 @@
-function createTextItem(text, empty = false) {
+import { getPokemonByName } from '../../../../config/pokemonData.js';
+
+function createHitSlot(pokemonName = null) {
 	const listItem = document.createElement('li');
-	listItem.textContent = text;
-	listItem.classList.toggle('is-empty', empty);
+	listItem.className = 'game-hit-slot';
+
+	if (!pokemonName) {
+		listItem.classList.add('is-empty');
+		const placeholder = document.createElement('span');
+		placeholder.textContent = '???';
+		listItem.appendChild(placeholder);
+		return listItem;
+	}
+
+	const pokemon = getPokemonByName(pokemonName);
+
+	if (!pokemon) {
+		listItem.classList.add('is-empty');
+		const placeholder = document.createElement('span');
+		placeholder.textContent = '???';
+		listItem.appendChild(placeholder);
+		return listItem;
+	}
+
+	const image = document.createElement('img');
+	image.src = pokemon.image_src;
+	image.alt = pokemon.name;
+	image.title = pokemon.name;
+
+	listItem.appendChild(image);
 	return listItem;
 }
 
@@ -9,15 +35,13 @@ export function setupTurnControl(container, callbacks = {}) {
 	const primaryPlayerBadge = container.querySelector('#gamePrimaryPlayerBadge');
 	const primaryPlayerAvatar = container.querySelector('#gamePrimaryPlayerAvatar');
 	const principalScore = container.querySelector('#gamePrincipalScore');
-	const primaryHitsTitle = container.querySelector('#gamePrimaryHitsTitle');
-	const primaryHits = container.querySelector('#gamePrimaryHits');
 	const primaryPlayerCard = container.querySelector('#gamePrimaryPlayerCard');
 	const guestPlayerBadge = container.querySelector('#gameGuestPlayerBadge');
 	const guestPlayerAvatar = container.querySelector('#gameGuestPlayerAvatar');
 	const guestScore = container.querySelector('#gameGuestScore');
-	const guestHitsTitle = container.querySelector('#gameGuestHitsTitle');
-	const guestHits = container.querySelector('#gameGuestHits');
 	const guestPlayerCard = container.querySelector('#gameGuestPlayerCard');
+	const opponentHitsTitle = container.querySelector('#gameOpponentHitsTitle');
+	const opponentHits = container.querySelector('#gameOpponentHits');
 	const goHomeButton = container.querySelector('#gameGoHomeButton');
 	const surrenderButton = container.querySelector('#gameSurrenderButton');
 	const startDialog = container.querySelector('#gameStartDialog');
@@ -28,42 +52,43 @@ export function setupTurnControl(container, callbacks = {}) {
 	const surrenderConfirmButton = container.querySelector('#gameSurrenderConfirmButton');
 	const endDialog = container.querySelector('#gameEndDialog');
 	const endDialogMessage = container.querySelector('#gameEndDialogMessage');
-	const endDialogButton = container.querySelector('#gameEndDialogButton');
 
-	if (!primaryPlayerBadge || !guestPlayerBadge || !goHomeButton || !surrenderButton) {
+	if (!primaryPlayerBadge || !guestPlayerBadge || !surrenderButton) {
 		throw new Error('Estrutura do painel de controle da partida está incompleta.');
 	}
 
-	goHomeButton.addEventListener('click', () => callbacks.onGoHome?.());
+	goHomeButton?.addEventListener('click', () => callbacks.onGoHome?.());
 	surrenderButton.addEventListener('click', () => callbacks.onAskSurrender?.());
 	startDialogButton?.addEventListener('click', () => callbacks.onCloseStart?.());
-	endDialogButton?.addEventListener('click', () => callbacks.onCloseEnd?.());
 	surrenderCancelButton?.addEventListener('click', () => callbacks.onCancelSurrender?.());
 	surrenderConfirmButton?.addEventListener('click', () => callbacks.onConfirmSurrender?.());
 
 	function setPlayers(match) {
+		const currentPlayerKey = match.currentTurn;
+		const opponentPlayer = match.getOpponent(currentPlayerKey);
+		const hitSlots = [];
+		const maxSlots = Math.max(opponentPlayer.team.length, 6);
+
 		primaryPlayerBadge.textContent = match.principal.name;
 		primaryPlayerAvatar.src = match.principal.avatar;
 		primaryPlayerAvatar.alt = `Avatar de ${match.principal.name}`;
 		principalScore.textContent = String(match.principal.hits.length);
-		if (primaryHitsTitle) {
-			primaryHitsTitle.textContent = match.principal.name;
-		}
 		guestPlayerBadge.textContent = match.guest.name;
 		guestPlayerAvatar.src = match.guest.avatar;
 		guestPlayerAvatar.alt = `Avatar de ${match.guest.name}`;
 		guestScore.textContent = String(match.guest.hits.length);
-		if (guestHitsTitle) {
-			guestHitsTitle.textContent = match.guest.name;
-		}
 		primaryPlayerCard.classList.toggle('game-player-card--active', match.currentTurn === 'principal');
 		guestPlayerCard.classList.toggle('game-player-card--active', match.currentTurn === 'guest');
-		primaryHits.replaceChildren(...(match.principal.hits.length > 0
-			? match.principal.hits.map(name => createTextItem(name))
-			: [createTextItem('Nenhum acerto ainda.', true)]));
-		guestHits.replaceChildren(...(match.guest.hits.length > 0
-			? match.guest.hits.map(name => createTextItem(name))
-			: [createTextItem('Nenhum acerto ainda.', true)]));
+
+		if (opponentHitsTitle) {
+			opponentHitsTitle.textContent = opponentPlayer.name;
+		}
+
+		for (let index = 0; index < maxSlots; index += 1) {
+			hitSlots.push(createHitSlot(opponentPlayer.hits[index] ?? null));
+		}
+
+		opponentHits?.replaceChildren(...hitSlots);
 	}
 
 	function openStartDialog(message) {

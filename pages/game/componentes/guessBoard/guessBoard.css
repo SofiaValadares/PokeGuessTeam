@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 18px;
     height: 100%;
+    min-height: 0;
     padding: 22px;
     border-radius: 28px;
     overflow: hidden;
@@ -38,55 +39,12 @@
     color: #f8fbff;
 }
 
-.game-turn-banner {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    padding: 14px 16px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.game-turn-banner strong,
-.game-turn-banner small {
-    color: #f8fbff;
-}
-
-.game-turn-banner small {
-    opacity: 0.86;
-}
-
-.game-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 34px;
-    padding: 0 12px;
-    border-radius: 999px;
-    font-weight: 800;
-    font-size: 0.84rem;
-}
-
-.game-pill--accent {
-    background: rgba(255, 213, 79, 0.18);
-    color: #fef3c7;
-    border: 1px solid rgba(255, 213, 79, 0.28);
-}
-
-.game-pill--muted {
-    background: rgba(255, 255, 255, 0.14);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    margin-left: auto;
-}
-
 .game-guess-form {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 12px;
     align-items: end;
+    flex-shrink: 0;
 }
 
 .game-guess-form__field {
@@ -109,12 +67,15 @@
 .game-opponent-panel {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
     gap: 14px;
     padding: 18px;
     border-radius: 24px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(148, 163, 184, 0.06) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
 }
 
 .game-clue-panel__header {
@@ -142,8 +103,10 @@
     padding: 0 6px 0 0;
     display: grid;
     grid-template-columns: 1fr;
+    flex: 1;
     gap: 14px;
-    max-height: 560px;
+    min-height: 0;
+    max-height: 100%;
     overflow-y: auto;
 }
 
@@ -221,9 +184,19 @@
     color: rgba(255, 255, 255, 0.88);
 }
 
+.game-opponent-slot__media .game-opponent-slot__media-text {
+    font-size: 0.82rem;
+    line-height: 1.15;
+    text-align: center;
+    padding: 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .game-opponent-slot__content {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     gap: 8px;
     min-width: 0;
     flex: 1;
@@ -234,96 +207,60 @@
 .game-opponent-slot__top,
 .game-opponent-slot__row {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(6px, 1.2vh, 12px);
 }
 
 .game-opponent-slot__top {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.game-opponent-slot__row--with-color {
-    grid-template-columns: minmax(0, 0.82fr) minmax(56px, 0.56fr) minmax(56px, 0.56fr) minmax(0, 0.98fr);
-}
-
 .game-opponent-slot__tag,
-.game-opponent-slot__label,
-.game-opponent-slot__counter {
+.game-opponent-slot__label {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 38px;
+    min-height: 36px;
     padding: 6px 10px;
     border-radius: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(254, 202, 202, 0.8);
+    background: rgba(220, 38, 38, 0.9);
     color: #fff7ed;
     font-weight: 800;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     letter-spacing: 0.02em;
-    line-height: 1.2;
+    line-height: 1.1;
     text-align: center;
     overflow-wrap: anywhere;
     box-sizing: border-box;
     min-width: 0;
     max-width: 100%;
-}
-
-.game-opponent-slot__tag {
-    min-height: 32px;
-    padding: 4px 8px;
-    font-size: 0.7rem;
-    line-height: 1.05;
-}
-
-.game-opponent-slot__label,
-.game-opponent-slot__counter {
-    min-height: 34px;
-    padding: 4px 6px;
-    font-size: 0.72rem;
-    line-height: 1.1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.game-opponent-slot__row--with-color .game-opponent-slot__label,
-.game-opponent-slot__row--with-color .game-opponent-slot__counter {
-    min-height: 32px;
-    padding: 3px 5px;
-    font-size: 0.64rem;
-}
-
-.game-opponent-slot__tag.is-muted,
-.game-opponent-slot__label,
-.game-opponent-slot__counter {
-    background: rgba(255, 255, 255, 0.94);
-    border-color: rgba(255, 255, 255, 0.9);
-    color: #4b5563;
     box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
 }
 
-.game-opponent-slot__label {
-    justify-content: flex-start;
+.game-opponent-slot__tag {
+    min-height: 36px;
 }
 
-.game-opponent-slot__counter {
-    justify-content: center;
-    font-variant-numeric: tabular-nums;
-}
-
-.game-opponent-slot__row .game-opponent-slot__label:first-child {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.6);
-    color: #fff7ed;
-    box-shadow: none;
-}
-
-.game-opponent-slot__row--with-color .game-opponent-slot__label--color {
+.game-opponent-slot__tag.is-unknown,
+.game-opponent-slot__label.is-unknown {
     background: rgba(220, 38, 38, 0.9);
     border-color: rgba(254, 202, 202, 0.8);
     color: #fff7ed;
-    box-shadow: none;
+}
+
+.game-opponent-slot__label {
+    justify-content: center;
+}
+
+.game-opponent-slot__tag.is-known,
+.game-opponent-slot__label.is-known {
+    background: rgba(22, 163, 74, 0.92);
+    border-color: rgba(187, 247, 208, 0.82);
+    color: #f0fdf4;
 }
 
 .game-opponent-slot__row:has(.game-opponent-slot__label:only-child) {
@@ -335,6 +272,7 @@
     padding: 14px 16px;
     border-radius: 16px;
     font-weight: 700;
+    flex-shrink: 0;
 }
 
 .game-feedback-status.is-info {

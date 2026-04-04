@@ -106,6 +106,9 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 		onRemovePokemon: index => {
 			handleRemovePokemon(index);
 		},
+		onReorderPokemon: (fromIndex, toIndex) => {
+			handleReorderPokemon(fromIndex, toIndex);
+		},
 		onPrimaryAction: () => {
 			if (selectedNames.length < 6) {
 				teamSideController.setStatus('Selecione 6 pokémon antes de continuar.', 'error');
@@ -113,19 +116,6 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 			}
 
 			persistStep();
-		},
-		onBack: () => {
-			if (isPrincipalStep) {
-				matchHandler.clearMatch();
-				routeContext.refreshNavigation?.();
-				routeContext.navigateTo?.('home');
-				return;
-			}
-
-			match.phase = 'team-main';
-			match.status = 'setup';
-			matchHandler.saveMatch(match);
-			routeContext.navigateTo?.('team-main', buildRouteSegments(principalNameFromPath, guestNameFromPath || match.guest.name));
 		},
 	});
 
@@ -150,7 +140,6 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 		showGuestNameField: false,
 		guestName,
 		primaryButtonLabel: isPrincipalStep ? 'Próximo' : 'Iniciar partida',
-		backButtonLabel: isPrincipalStep ? 'Voltar para Home' : 'Voltar',
 	});
 
 	const pokemonListController = setupPokemonList(pokemonListMount, {
@@ -199,6 +188,26 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 
 	function handleRemovePokemon(index) {
 		selectedNames = selectedNames.filter((_, itemIndex) => itemIndex !== index);
+		clearStatus();
+		renderSelectedTeam();
+	}
+
+	function handleReorderPokemon(fromIndex, toIndex) {
+		if (
+			fromIndex < 0
+			|| toIndex < 0
+			|| fromIndex >= selectedNames.length
+			|| toIndex > selectedNames.length
+			|| fromIndex === toIndex
+		) {
+			return;
+		}
+
+		const reorderedNames = [...selectedNames];
+		const [movedPokemon] = reorderedNames.splice(fromIndex, 1);
+		const normalizedTargetIndex = Math.min(toIndex, reorderedNames.length);
+		reorderedNames.splice(normalizedTargetIndex, 0, movedPokemon);
+		selectedNames = reorderedNames;
 		clearStatus();
 		renderSelectedTeam();
 	}

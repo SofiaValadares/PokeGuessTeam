@@ -15,15 +15,15 @@
 
 .game-scoreboard {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
 .game-player-card {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 18px;
+    gap: 8px;
+    padding: 12px;
     border-radius: 20px;
     background: #ffffff;
     border: 1px solid #dbe5f0;
@@ -40,37 +40,39 @@
 
 .game-player-card__top {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
 }
 
 .game-player-card__identity {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: 4px;
 	min-width: 0;
 }
 
 .game-player-card__top img {
-    width: 68px;
-    height: 68px;
+    width: 46px;
+    height: 46px;
     object-fit: contain;
     image-rendering: pixelated;
     background: #f8fafc;
-    border-radius: 18px;
-    padding: 6px;
+    border-radius: 12px;
+    padding: 3px;
+    flex-shrink: 0;
 }
 
 .game-player-card__badge {
-    font-size: 0.78rem;
+    font-size: 0.62rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: #b45309;
+    line-height: 1.1;
 }
 
 .game-player-card__score {
-    font-size: 2rem;
+    font-size: 1.3rem;
     line-height: 1;
     color: #0f172a;
 }
@@ -84,12 +86,15 @@
 .game-hit-panel {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
     gap: 14px;
     padding: 18px;
     border-radius: 24px;
     background: #ffffff;
     border: 1px solid #dbe5f0;
     box-shadow: 0 14px 24px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
 }
 
 .pokedex-screen-right.game-screen .game-clue-panel__header h3 {
@@ -101,10 +106,12 @@
     color: #64748b;
 }
 
-.game-hit-panel__columns {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+.game-hit-panel__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    gap: 10px;
 }
 
 .game-hit-list {
@@ -112,25 +119,49 @@
     margin: 0;
     padding: 0;
     display: grid;
+    flex: 1;
+    min-height: 0;
+    max-height: 100%;
     gap: 10px;
+    overflow-y: auto;
 }
 
-.game-hit-list li {
-    padding: 10px 12px;
-    border-radius: 14px;
+.game-hit-list--sprites {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.game-hit-slot {
+    min-height: 82px;
+    border-radius: 18px;
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
-.game-hit-list li.is-empty {
-    color: #64748b;
+.game-hit-slot img {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.game-hit-slot.is-empty {
     background: rgba(148, 163, 184, 0.12);
+    color: #64748b;
+}
+
+.game-hit-slot.is-empty span {
+    font-weight: 800;
+    letter-spacing: 0.04em;
 }
 
 .game-actions {
     display: flex;
     flex-wrap: wrap;
+    flex-shrink: 0;
     gap: 12px;
     margin-top: auto;
 }
@@ -180,8 +211,7 @@
 }
 
 @media (max-width: 720px) {
-    .game-scoreboard,
-    .game-hit-panel__columns {
-        grid-template-columns: 1fr;
+    .game-hit-list--sprites {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
