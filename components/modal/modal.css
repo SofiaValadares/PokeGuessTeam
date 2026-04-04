@@ -1,0 +1,46 @@
+/* Modal base */
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 1000;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	overflow: auto;
+	background-color: rgba(0,0,0,0.6);
+	font-family: 'VT323', monospace;
+}
+
+.modal-content {
+	background: #f8f8f8;
+	margin: 5% auto;
+	padding: 20px 30px;
+	border: 4px solid #d32f2f;
+	border-radius: 16px;
+	width: 90%;
+	max-width: 600px;
+	box-shadow: 0 0 24px #d32f2f;
+	position: relative;
+}
+
+.close {
+	color: #d32f2f;
+	position: absolute;
+	top: 10px;
+	right: 20px;
+	font-size: 2rem;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.credits-text {
+	background: #fff;
+	border: 1px solid #d32f2f;
+	border-radius: 8px;
+	padding: 12px;
+	max-height: 400px;
+	overflow-y: auto;
+	font-size: 1.1rem;
+	color: #222;
+}

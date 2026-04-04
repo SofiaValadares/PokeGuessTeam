@@ -1,0 +1,147 @@
+.pokemon-list-card {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	flex: 1;
+	min-height: 0;
+	padding: 20px;
+	border-radius: 28px;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	box-shadow: 0 18px 28px rgba(0, 0, 0, 0.14);
+}
+
+.pokemon-list-card__header {
+	display: flex;
+	justify-content: space-between;
+	gap: 16px;
+	align-items: flex-start;
+}
+
+.pokemon-list-card__header h3,
+.pokemon-list-card__description,
+.pokemon-list-card__eyebrow {
+	margin: 0;
+	color: #f8fbff;
+}
+
+.pokemon-list-card__eyebrow {
+	font-size: 0.78rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-weight: 800;
+	color: #ffdca8;
+	margin-bottom: 6px;
+}
+
+.pokemon-list-card__description {
+	max-width: 320px;
+	line-height: 1.5;
+	color: #dbeafe;
+}
+
+.pokemon-list-toolbar {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 12px;
+}
+
+.pokemon-list-toolbar__field {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	color: #f8fbff;
+	font-weight: 700;
+}
+
+.pokemon-list-grid {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+}
+
+.pokemon-list-item {
+	min-width: 0;
+}
+
+.pokemon-card-button {
+	width: 100%;
+	padding: 14px;
+	display: grid;
+	grid-template-columns: 64px 1fr;
+	align-items: center;
+	gap: 12px;
+	min-height: 92px;
+	border-radius: 22px;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	color: #ffffff;
+	box-shadow: none;
+}
+
+.pokemon-card-button:hover,
+.pokemon-card-button:focus {
+	background: rgba(255, 255, 255, 0.16);
+}
+
+.pokemon-card-button.is-disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.pokemon-card-button img {
+	width: 64px;
+	height: 64px;
+	object-fit: contain;
+	image-rendering: pixelated;
+	background: rgba(255, 255, 255, 0.9);
+	border-radius: 18px;
+	padding: 8px;
+}
+
+.pokemon-card-button strong,
+.pokemon-card-button small,
+.pokemon-card-button span {
+	margin: 0;
+	text-align: left;
+}
+
+.pokemon-card-button small {
+	color: #dbeafe;
+}
+
+.pokemon-card-button span {
+	font-size: 0.82rem;
+	color: #ffe8a8;
+	font-weight: 700;
+}
+
+.pokemon-list-empty {
+	margin: 0;
+	padding: 16px;
+	border-radius: 18px;
+	background: rgba(255, 255, 255, 0.1);
+	color: #fef3c7;
+}
+
+@media (max-width: 880px) {
+	.pokemon-list-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 640px) {
+	.pokemon-list-toolbar {
+		grid-template-columns: 1fr;
+	}
+
+	.pokemon-list-grid {
+		grid-template-columns: 1fr;
+	}
+}

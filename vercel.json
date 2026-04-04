@@ -1,19 +1,16 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
+  "version": 2,
+  "cleanUrls": false,
   "trailingSlash": false,
-  "rewrites": [
+  "headers": [
     {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/register",
-      "destination": "/register.html"
-    },
-    {
-      "source": "/guess",
-      "destination": "/guess.html"
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
     }
   ]
 }

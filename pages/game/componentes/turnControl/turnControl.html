@@ -1,0 +1,70 @@
+<section class="game-card game-card--controls">
+    <div class="game-card__header">
+        <p class="game-card__eyebrow">Controle de turnos</p>
+        <h2>Painel da batalha local</h2>
+        <p class="game-card__description">O destaque muda dinamicamente conforme o jogador da vez.</p>
+    </div>
+
+    <div class="game-scoreboard">
+        <article class="game-player-card" id="gamePrimaryPlayerCard">
+            <div class="game-player-card__top">
+                <img id="gamePrimaryPlayerAvatar" src="assets/player/001P.png" alt="Avatar do jogador principal">
+                <div class="game-player-card__identity">
+                    <span id="gamePrimaryPlayerBadge" class="game-player-card__badge">Jogador Principal</span>
+                    <strong id="gamePrincipalScore" class="game-player-card__score">0</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="game-player-card" id="gameGuestPlayerCard">
+            <div class="game-player-card__top">
+                <img id="gameGuestPlayerAvatar" src="assets/player/002P.png" alt="Avatar do jogador convidado">
+                <div class="game-player-card__identity">
+                    <span id="gameGuestPlayerBadge" class="game-player-card__badge">Jogador Convidado</span>
+                    <strong id="gameGuestScore" class="game-player-card__score">0</strong>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <section class="game-hit-panel">
+        <div class="game-clue-panel__header">
+            <h3>Pokémons acertados</h3>
+            <span>Do oponente</span>
+        </div>
+        <div class="game-hit-panel__content">
+            <p id="gameOpponentHitsTitle" class="game-player-card__list-title">Oponente</p>
+            <ul id="gameOpponentHits" class="game-hit-list game-hit-list--sprites"></ul>
+        </div>
+    </section>
+
+    <div class="game-actions">
+        <button id="gameSurrenderButton" type="button" class="button-danger">Desistir da partida</button>
+    </div>
+
+    <dialog id="gameStartDialog" class="game-dialog">
+        <div class="game-dialog__content">
+            <h3>Quem começa?</h3>
+            <p id="gameStartDialogMessage">O sorteio definiu o primeiro jogador.</p>
+            <button id="gameStartDialogButton" type="button">Começar</button>
+        </div>
+    </dialog>
+
+    <dialog id="gameSurrenderDialog" class="game-dialog">
+        <div class="game-dialog__content">
+            <h3>Desistir da partida?</h3>
+            <p>Essa ação encerra a partida atual e registra o resultado no histórico do jogador principal.</p>
+            <div class="game-dialog__actions">
+                <button id="gameSurrenderCancelButton" type="button" class="button-secondary">Cancelar</button>
+                <button id="gameSurrenderConfirmButton" type="button" class="button-danger">Confirmar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="gameEndDialog" class="game-dialog">
+        <div class="game-dialog__content">
+            <h3>Fim de partida</h3>
+            <p id="gameEndDialogMessage">Resultado final da batalha local.</p>
+        </div>
+    </dialog>
+</section>

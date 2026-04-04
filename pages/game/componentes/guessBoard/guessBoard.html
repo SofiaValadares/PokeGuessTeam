@@ -1,0 +1,23 @@
+<section class="game-card game-card--board">
+    <div class="game-card__header">
+        <p class="game-card__eyebrow">Campos de adivinhação</p>
+    </div>
+
+    <section class="game-opponent-panel">
+        <div class="game-clue-panel__header">
+            <h3>O que já sabemos</h3>
+            <span>6 slots de pistas</span>
+        </div>
+        <ul id="gameOpponentSlots" class="game-opponent-slots"></ul>
+    </section>
+
+    <form id="gameGuessForm" class="game-guess-form" autocomplete="off">
+        <label class="game-guess-form__field" for="gameGuessSearch">
+            <input id="gameGuessSearch" type="text" placeholder="Busque um pokémon para o chute" data-placeholder="Busque um pokémon para o chute" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+            <ul id="gameGuessOptionsList" class="game-guess-options-list is-hidden" role="listbox" aria-label="Sugestões de pokémon"></ul>
+        </label>
+        <button id="gameGuessButton" type="submit">Confirmar palpite</button>
+    </form>
+
+    <p id="gameGuessFeedbackStatus" class="game-feedback-status is-hidden" role="status" aria-live="polite"></p>
+</section>

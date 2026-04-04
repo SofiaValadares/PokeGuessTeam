@@ -1,0 +1,120 @@
+.home-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    padding: 22px;
+    border-radius: 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+.home-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.home-card__eyebrow {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.home-card__description {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.pokedex-screen-left.home-screen .home-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.pokedex-screen-left.home-screen .home-card__eyebrow,
+.pokedex-screen-left.home-screen .home-card__description,
+.pokedex-screen-left.home-screen h2 {
+    color: #f8fbff;
+}
+
+.home-table-wrap {
+    overflow: auto;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 560px;
+}
+
+.history-table th,
+.history-table td {
+    padding: 14px 16px;
+    text-align: left;
+}
+
+.history-table thead {
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.history-table thead th {
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(8px);
+}
+
+.history-table th {
+    color: #f8fbff;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.history-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.history-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.history-table td {
+    color: #e7eef8;
+}
+
+.history-table td:last-child,
+.history-table th:last-child {
+    text-align: right;
+}
+
+.history-table .home-delete-history {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+}
+
+.home-empty-state {
+    margin: 0;
+    padding: 18px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fef3c7;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 720px) {
+    .history-table {
+        min-width: 0;
+    }
+
+    .home-card {
+        gap: 16px;
+        padding: 18px;
+    }
+}

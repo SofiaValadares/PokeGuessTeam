@@ -1,0 +1,17 @@
+.team-page--left {
+	background:
+		radial-gradient(circle at top left, rgba(255, 214, 90, 0.14), transparent 24%),
+		linear-gradient(180deg, #14305e 0%, #08192f 100%);
+}
+
+.team-page--right {
+	background:
+		radial-gradient(circle at top right, rgba(255, 213, 79, 0.18), transparent 26%),
+		linear-gradient(180deg, #ffffff 0%, #eef2f5 100%);
+}
+
+@media (max-width: 960px) {
+}
+
+@media (max-width: 720px) {
+}

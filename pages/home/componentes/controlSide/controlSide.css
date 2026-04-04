@@ -1,0 +1,240 @@
+.pokedex-screen-right.home-screen .home-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.96));
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.home-player-hero {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    padding: 22px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #e53935 0%, #ef6c00 100%);
+    box-shadow: 0 18px 32px rgba(229, 57, 53, 0.24);
+    color: #ffffff;
+}
+
+.home-player-hero__avatar-wrap {
+    width: 112px;
+    height: 112px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.home-player-hero__avatar {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.home-player-hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.home-player-hero__content h3,
+.home-player-hero__content p {
+    margin: 0;
+    color: inherit;
+}
+
+.home-player-hero__content p {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.home-player-hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.home-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-weight: 700;
+}
+
+.home-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.home-stat-card {
+    padding: 18px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #dbe5f0;
+    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.06);
+}
+
+.home-stat-card span {
+    display: block;
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.home-stat-card strong {
+    color: #0f172a;
+    font-size: 1.2rem;
+}
+
+.home-screen .player-summary {
+    padding: 20px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #fff8e8 0%, #ffffff 100%);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.06);
+}
+
+.home-screen .player-summary h3 {
+    margin: 0 0 14px;
+    color: #9a3412;
+}
+
+.home-screen .player-summary__progress-bar {
+    background: #fde7b2;
+}
+
+.home-screen .player-summary__grid div {
+    background: rgba(255, 255, 255, 0.94);
+    border-color: rgba(245, 158, 11, 0.18);
+}
+
+.home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.home-actions button {
+    flex: 1 1 180px;
+}
+
+#homeStartAiMatchButton {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(59, 130, 246, 0.36);
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 14px 26px rgba(59, 130, 246, 0.22);
+}
+
+#homeStartAiMatchButton::before {
+    content: '🤖';
+    margin-right: 8px;
+}
+
+#homeStartAiMatchButton:hover,
+#homeStartAiMatchButton:focus {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 18px 30px rgba(59, 130, 246, 0.28);
+}
+
+#homeStartAiMatchButton:active {
+    transform: translateY(0);
+}
+
+.home-card--profile {
+    justify-content: flex-start;
+}
+
+.home-dialog {
+    border: none;
+    padding: 0;
+    border-radius: 22px;
+    max-width: 460px;
+    width: calc(100% - 32px);
+}
+
+.home-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.7);
+}
+
+.home-dialog__content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.home-dialog__content h3,
+.home-dialog__content p {
+    margin: 0;
+}
+
+.home-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.home-dialog__field input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    font: inherit;
+    color: #0f172a;
+}
+
+.home-dialog__field input:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.3);
+    border-color: #3b82f6;
+}
+
+.home-dialog__error {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(239, 68, 68, 0.12);
+    color: #991b1b;
+    font-weight: 700;
+}
+
+.home-dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 960px) {
+    .home-player-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 720px) {
+    .home-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .home-player-hero {
+        gap: 16px;
+    }
+
+    .home-current-match__score {
+        align-items: flex-start;
+    }
+}

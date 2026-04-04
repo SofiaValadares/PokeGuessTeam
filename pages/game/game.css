@@ -1,0 +1,80 @@
+.game-screen {
+    min-height: 100%;
+}
+
+.pokedex-screen-left.game-screen {
+    background:
+        radial-gradient(circle at top left, rgba(255, 214, 90, 0.14), transparent 26%),
+        linear-gradient(180deg, #132c57 0%, #08192f 100%);
+}
+
+.pokedex-screen-right.game-screen {
+    background:
+        radial-gradient(circle at top right, rgba(255, 213, 79, 0.14), transparent 26%),
+        linear-gradient(180deg, #ffffff 0%, #eef3fb 100%);
+}
+
+.game-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.7);
+}
+
+.game-dialog__content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.game-dialog__content h3,
+.game-dialog__content p {
+    margin: 0;
+}
+
+.game-dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+@keyframes game-pulse-card {
+    0%,
+    100% {
+        transform: translateY(-2px);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@media (max-width: 720px) {
+    .game-guess-form,
+    .game-scoreboard {
+        grid-template-columns: 1fr;
+    }
+
+    .game-opponent-slot {
+        flex-direction: column;
+    }
+
+    .game-opponent-slot__media {
+        width: 100%;
+        min-height: 140px;
+    }
+
+    .game-card {
+        padding: 18px;
+    }
+
+    .game-opponent-slot__row,
+    .game-opponent-slot__top {
+        grid-template-columns: 1fr;
+    }
+
+    .game-player-card__top {
+        align-items: flex-start;
+    }
+
+    .game-dialog__actions {
+        flex-direction: column;
+    }
+}
