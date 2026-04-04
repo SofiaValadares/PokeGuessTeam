@@ -1,26 +1,29 @@
 import { getPokemonByName } from '../../../../config/pokemonData.js';
 
-function createHitSlot(pokemonName = null) {
+function createPlaceholderHitSlot() {
 	const listItem = document.createElement('li');
-	listItem.className = 'game-hit-slot';
+	listItem.className = 'game-hit-slot is-empty';
 
+	const placeholder = document.createElement('span');
+	placeholder.textContent = '???';
+	listItem.appendChild(placeholder);
+
+	return listItem;
+}
+
+function createHitSlot(pokemonName = null) {
 	if (!pokemonName) {
-		listItem.classList.add('is-empty');
-		const placeholder = document.createElement('span');
-		placeholder.textContent = '???';
-		listItem.appendChild(placeholder);
-		return listItem;
+		return createPlaceholderHitSlot();
 	}
 
 	const pokemon = getPokemonByName(pokemonName);
 
 	if (!pokemon) {
-		listItem.classList.add('is-empty');
-		const placeholder = document.createElement('span');
-		placeholder.textContent = '???';
-		listItem.appendChild(placeholder);
-		return listItem;
+		return createPlaceholderHitSlot();
 	}
+
+	const listItem = document.createElement('li');
+	listItem.className = 'game-hit-slot';
 
 	const image = document.createElement('img');
 	image.src = pokemon.image_src;
@@ -42,7 +45,6 @@ export function setupTurnControl(container, callbacks = {}) {
 	const guestPlayerCard = container.querySelector('#gameGuestPlayerCard');
 	const opponentHitsTitle = container.querySelector('#gameOpponentHitsTitle');
 	const opponentHits = container.querySelector('#gameOpponentHits');
-	const goHomeButton = container.querySelector('#gameGoHomeButton');
 	const surrenderButton = container.querySelector('#gameSurrenderButton');
 	const startDialog = container.querySelector('#gameStartDialog');
 	const startDialogMessage = container.querySelector('#gameStartDialogMessage');
@@ -57,7 +59,6 @@ export function setupTurnControl(container, callbacks = {}) {
 		throw new Error('Estrutura do painel de controle da partida está incompleta.');
 	}
 
-	goHomeButton?.addEventListener('click', () => callbacks.onGoHome?.());
 	surrenderButton.addEventListener('click', () => callbacks.onAskSurrender?.());
 	startDialogButton?.addEventListener('click', () => callbacks.onCloseStart?.());
 	surrenderCancelButton?.addEventListener('click', () => callbacks.onCancelSurrender?.());

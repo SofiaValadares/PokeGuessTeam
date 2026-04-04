@@ -74,11 +74,6 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 	});
 
 	const turnControlController = setupTurnControl(rightScreen, {
-		onGoHome: () => {
-			matchHandler.saveMatch(match);
-			routeContext.refreshNavigation?.();
-			routeContext.navigateTo?.('home');
-		},
 		onAskSurrender: () => {
 			turnControlController.openSurrenderDialog();
 		},
@@ -98,13 +93,6 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 	});
 
 	guessBoardController.setGuessOptions(pokemonData.map(pokemon => pokemon.name));
-
-	function createTextItem(text, empty = false) {
-		const listItem = document.createElement('li');
-		listItem.textContent = text;
-		listItem.classList.toggle('is-empty', empty);
-		return listItem;
-	}
 
 	function createOpponentKnowledgeSlot(cardState) {
 		const slot = document.createElement('li');
@@ -272,13 +260,6 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		}
 
 		guessBoardController.setOpponentSlots(slotNodes);
-	}
-
-	function getGuessedNames() {
-		return new Set([
-			...match.principal.guesses.map(item => item.guessName.toLowerCase()),
-			...match.guest.guesses.map(item => item.guessName.toLowerCase()),
-		]);
 	}
 
 	function getPlayerGuessedNames(playerKey) {

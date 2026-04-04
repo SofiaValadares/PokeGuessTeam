@@ -9,43 +9,6 @@ function createPlayerState(playerData = {}) {
 	};
 }
 
-function compareAgainstRange(value, values) {
-	if (values.some(currentValue => currentValue === value)) {
-		return 'igual';
-	}
-
-	const minValue = Math.min(...values);
-	const maxValue = Math.max(...values);
-
-	if (value < minValue) {
-		return 'menor';
-	}
-
-	if (value > maxValue) {
-		return 'maior';
-	}
-
-	return 'entre';
-}
-
-function buildComparisonStats(value, values) {
-	return values.reduce((stats, currentValue) => {
-		if (currentValue < value) {
-			stats.lower += 1;
-		} else if (currentValue > value) {
-			stats.higher += 1;
-		} else {
-			stats.equal += 1;
-		}
-
-		return stats;
-	}, {
-		lower: 0,
-		equal: 0,
-		higher: 0,
-	});
-}
-
 export default class MatchState {
 	constructor(matchData = {}) {
 		this.id = matchData.id ?? crypto.randomUUID();
@@ -108,42 +71,17 @@ export default class MatchState {
 		return this.getPlayer(playerKey).hits.length >= opponentTeam.length && opponentTeam.length > 0;
 	}
 
-	getScore(playerKey) {
-		return this.getPlayer(playerKey).hits.length;
-	}
-
 	markOpeningModalAsShown() {
 		this.hasShownOpeningModal = true;
 	}
 
 	buildGuessFeedback(playerKey, guessedPokemon, opponentTeamPokemons) {
-		const samePrimary = opponentTeamPokemons.filter(pokemon => pokemon.primary_type === guessedPokemon.primary_type).map(pokemon => pokemon.name);
-		const sameSecondary = guessedPokemon.secondary_type
-			? opponentTeamPokemons.filter(pokemon => pokemon.secondary_type === guessedPokemon.secondary_type).map(pokemon => pokemon.name)
-			: [];
-		const generations = opponentTeamPokemons.map(pokemon => pokemon.generation);
-		const heights = opponentTeamPokemons.map(pokemon => pokemon.height);
-		const weights = opponentTeamPokemons.map(pokemon => pokemon.weight);
 		const exactTargets = opponentTeamPokemons.filter(pokemon => pokemon.name.toLowerCase() === guessedPokemon.name.toLowerCase());
 
 		return {
 			id: crypto.randomUUID(),
 			playerKey,
 			guessName: guessedPokemon.name,
-			guessImage: guessedPokemon.image_src,
-			guessPrimaryType: guessedPokemon.primary_type,
-			guessSecondaryType: guessedPokemon.secondary_type || 'Nenhum',
-			guessColor: guessedPokemon.color,
-			samePrimary,
-			sameSecondary,
-			generationHint: compareAgainstRange(guessedPokemon.generation, generations),
-			generationStats: buildComparisonStats(guessedPokemon.generation, generations),
-			colorMatch: opponentTeamPokemons.some(pokemon => pokemon.color === guessedPokemon.color),
-			colorMatches: opponentTeamPokemons.filter(pokemon => pokemon.color === guessedPokemon.color).length,
-			heightHint: compareAgainstRange(guessedPokemon.height, heights),
-			heightStats: buildComparisonStats(guessedPokemon.height, heights),
-			weightHint: compareAgainstRange(guessedPokemon.weight, weights),
-			weightStats: buildComparisonStats(guessedPokemon.weight, weights),
 			isExactMatch: exactTargets.length > 0,
 			matchedPokemonNames: exactTargets.map(pokemon => pokemon.name),
 			createdAt: new Date().toISOString(),
