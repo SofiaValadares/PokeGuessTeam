@@ -45,6 +45,8 @@
     gap: 12px;
     align-items: end;
     flex-shrink: 0;
+    position: relative;
+    overflow: visible;
 }
 
 .game-guess-form__field {
@@ -53,6 +55,9 @@
     gap: 8px;
     color: #f8fbff;
     font-weight: 700;
+    position: relative;
+    min-width: 0;
+    z-index: 20;
 }
 
 .game-guess-form__field input {
@@ -62,6 +67,71 @@
 .game-guess-form__field input::placeholder {
     color: rgba(15, 23, 42, 0.58);
     opacity: 1;
+}
+
+.game-guess-options-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    max-height: 280px;
+    overflow-y: auto;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(203, 213, 225, 0.9);
+    box-shadow: 0 18px 32px rgba(15, 23, 42, 0.22);
+    z-index: 30;
+}
+
+.game-guess-options-list.is-hidden {
+    display: none;
+}
+
+.game-guess-option + .game-guess-option {
+    margin-top: 6px;
+}
+
+.game-guess-option__button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #0f172a;
+    box-shadow: none;
+    text-align: left;
+}
+
+.game-guess-option__button:hover,
+.game-guess-option__button:focus {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.game-guess-option__button img {
+    width: 40px;
+    height: 40px;
+    padding: 4px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    object-fit: contain;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.game-guess-option__button span {
+    font-weight: 700;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .game-opponent-panel {

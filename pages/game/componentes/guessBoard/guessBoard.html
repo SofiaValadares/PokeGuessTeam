@@ -13,9 +13,9 @@
 
     <form id="gameGuessForm" class="game-guess-form" autocomplete="off">
         <label class="game-guess-form__field" for="gameGuessSearch">
-            <input id="gameGuessSearch" type="text" list="gameGuessOptions" placeholder="Busque um pokémon para o chute" data-placeholder="Busque um pokémon para o chute" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+            <input id="gameGuessSearch" type="text" placeholder="Busque um pokémon para o chute" data-placeholder="Busque um pokémon para o chute" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+            <ul id="gameGuessOptionsList" class="game-guess-options-list is-hidden" role="listbox" aria-label="Sugestões de pokémon"></ul>
         </label>
-        <datalist id="gameGuessOptions"></datalist>
         <button id="gameGuessButton" type="submit">Confirmar palpite</button>
     </form>
 

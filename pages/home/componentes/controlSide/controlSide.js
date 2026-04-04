@@ -13,6 +13,7 @@ export function setupControlSide(container, callbacks = {}) {
 	const losses = container.querySelector('#homeLosses');
 	const deleteProfileButton = container.querySelector('#homeEditProfileButton');
 	const startMatchButton = container.querySelector('#homeStartMatchButton');
+	const startAiMatchButton = container.querySelector('#homeStartAiMatchButton');
 	const deleteProfileDialog = container.querySelector('#homeDeleteProfileDialog');
 	const deleteProfileCancelButton = container.querySelector('#homeDeleteProfileCancelButton');
 	const deleteProfileConfirmButton = container.querySelector('#homeDeleteProfileConfirmButton');
@@ -22,7 +23,7 @@ export function setupControlSide(container, callbacks = {}) {
 	const startMatchCancelButton = container.querySelector('#homeStartMatchCancelButton');
 	const startMatchConfirmButton = container.querySelector('#homeStartMatchConfirmButton');
 
-	if (!avatar || !nameElement || !deleteProfileButton || !startMatchButton) {
+	if (!avatar || !nameElement || !deleteProfileButton || !startMatchButton || !startAiMatchButton) {
 		throw new Error('Estrutura do painel lateral da Home está incompleta.');
 	}
 
@@ -67,6 +68,10 @@ export function setupControlSide(container, callbacks = {}) {
 		setStartMatchError('');
 		openDialog(startMatchDialog);
 		window.setTimeout(() => guestNameInput?.focus(), 0);
+	});
+
+	startAiMatchButton.addEventListener('click', () => {
+		callbacks.onStartAIMatch?.();
 	});
 
 	startMatchCancelButton?.addEventListener('click', () => {

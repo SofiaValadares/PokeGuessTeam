@@ -2,6 +2,7 @@ function createPlayerState(playerData = {}) {
 	return {
 		name: playerData.name ?? '',
 		avatar: playerData.avatar ?? '',
+		isAi: Boolean(playerData.isAi),
 		team: Array.isArray(playerData.team) ? [...playerData.team] : [],
 		hits: Array.isArray(playerData.hits) ? [...playerData.hits] : [],
 		guesses: Array.isArray(playerData.guesses) ? [...playerData.guesses] : [],
@@ -45,9 +46,10 @@ export default class MatchState {
 		this.status = 'setup';
 	}
 
-	setGuestData({ name, avatar, team }) {
+	setGuestData({ name, avatar, team, isAi = false }) {
 		this.guest.name = name;
 		this.guest.avatar = avatar;
+		this.guest.isAi = Boolean(isAi);
 		this.guest.team = [...team];
 		this.phase = 'active';
 		this.status = 'active';

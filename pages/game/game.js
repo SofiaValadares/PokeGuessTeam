@@ -1,4 +1,5 @@
 import { getPokemonByName, pokemonData } from '../../config/pokemonData.js';
+import { AI_TURN_DELAY_MS, chooseAiGuess } from '../../config/aiOpponent.js';
 import { MatchsResult } from '../../enums/MatchsResult.js';
 import HistoryHander from '../../store/HistoryHander.js';
 import MatchHandler from '../../store/MatchHandler.js';
@@ -36,8 +37,10 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 	const historyHandler = new HistoryHander(playerHandler);
 	const player = playerHandler.getPlayer();
 	const match = matchHandler.getMatch();
+	const isAiMatch = Boolean(match?.guest?.isAi);
 	let turnTransitionTimeoutId = null;
 	let endDialogRedirectTimeoutId = null;
+	let aiTurnTimeoutId = null;
 
 	if (!player) {
 		routeContext.navigateTo?.('register');
@@ -89,6 +92,7 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		},
 		onCloseStart: () => {
 			turnControlController.closeStartDialog();
+			render();
 		},
 	});
 
@@ -269,7 +273,17 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 	}
 
 	function renderGuessOptions(playerKey) {
+		if (isAiMatch && playerKey === 'guest') {
+			guessBoardController.setGuessOptions([]);
+			return;
+		}
+
 		const guessedNames = getPlayerGuessedNames(playerKey);
+
+		if (isAiMatch && playerKey === 'principal') {
+			getPlayerGuessedNames('guest').forEach(name => guessedNames.add(name));
+		}
+
 		guessBoardController.setGuessOptions(
 			pokemonData
 				.filter(pokemon => !guessedNames.has(pokemon.name.toLowerCase()))
@@ -286,16 +300,28 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 	}
 
 	function render() {
+		const isAiTurn = isAiMatch && match.currentTurn === 'guest' && match.status === 'active';
 		renderGuessHistory(match.currentTurn);
 		renderPlayerCards();
 		renderGuessOptions(match.currentTurn);
-		guessBoardController.setDisabled(match.status === 'finished');
+		guessBoardController.setDisabled(match.status === 'finished' || isAiTurn);
+
+		if (isAiTurn && match.hasShownOpeningModal) {
+			scheduleAiTurn();
+		}
 	}
 
 	function clearPendingTurnTransition() {
 		if (turnTransitionTimeoutId) {
 			window.clearTimeout(turnTransitionTimeoutId);
 			turnTransitionTimeoutId = null;
+		}
+	}
+
+	function clearPendingAiTurn() {
+		if (aiTurnTimeoutId) {
+			window.clearTimeout(aiTurnTimeoutId);
+			aiTurnTimeoutId = null;
 		}
 	}
 
@@ -323,6 +349,7 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 	}
 
 	function finishGame(isSurrender = false, surrenderPlayer = null) {
+		clearPendingAiTurn();
 		const principalResult = resolvePrincipalResult(isSurrender, surrenderPlayer);
 		const experienceGain = playerHandler.calculateExperienceGain(principalResult);
 		const updatedPlayer = historyHandler.appendHistory({
@@ -352,7 +379,79 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		}, 3000);
 	}
 
+	function scheduleAiTurn() {
+		if (!isAiMatch || match.status !== 'active' || match.currentTurn !== 'guest' || aiTurnTimeoutId) {
+			return;
+		}
+
+		guessBoardController.setFeedback(`${match.guest.name} está pensando...`, 'info');
+		aiTurnTimeoutId = window.setTimeout(() => {
+			aiTurnTimeoutId = null;
+			executeAiTurn();
+		}, AI_TURN_DELAY_MS);
+	}
+
+	function executeAiTurn() {
+		if (!isAiMatch || match.status !== 'active' || match.currentTurn !== 'guest') {
+			return;
+		}
+
+		const aiGuess = chooseAiGuess({
+			guessedNames: Array.from(getPlayerGuessedNames('guest')),
+			knownSlots: buildOpponentCardStates('guest'),
+		});
+
+		if (!aiGuess) {
+			guessBoardController.setFeedback(`${match.guest.name} não encontrou um palpite válido.`, 'error');
+			return;
+		}
+
+		const result = match.applyGuess('guest', aiGuess, pokemonData);
+
+		if (result.error) {
+			guessBoardController.setFeedback(result.error, 'error');
+			return;
+		}
+
+		clearPendingTurnTransition();
+		matchHandler.saveMatch(match);
+		guessBoardController.setFeedback(
+			result.feedback.isExactMatch
+				? `${match.guest.name} acertou ${aiGuess.name}.`
+				: `${match.guest.name} chutou ${aiGuess.name} e errou.`,
+			result.feedback.isExactMatch ? 'success' : 'info'
+		);
+
+		const shouldDelayTurnChange = result.outcome === 'switch-turn' || result.outcome === 'final-response' || result.outcome === 'finished-after-final-response';
+
+		if (shouldDelayTurnChange) {
+			guessBoardController.setDisabled(true);
+			turnTransitionTimeoutId = window.setTimeout(() => {
+				turnTransitionTimeoutId = null;
+				guessBoardController.clearGuessInput();
+				guessBoardController.clearFeedback();
+				render();
+
+				if (match.status === 'finished') {
+					finishGame();
+				}
+			}, 3000);
+			return;
+		}
+
+		render();
+
+		if (match.status === 'finished') {
+			finishGame();
+		}
+	}
+
 	function handleGuessSubmit(guessValue) {
+		if (isAiMatch && match.currentTurn === 'guest') {
+			guessBoardController.setFeedback('Aguarde o turno da IA.', 'info');
+			return;
+		}
+
 		const guessedPokemon = getPokemonByName(guessValue);
 		const currentTurn = match.currentTurn;
 		const currentPlayer = match.getPlayer(currentTurn);
@@ -419,5 +518,11 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 		guessBoardController.clearFeedback();
 	}
 
-	return null;
+	return {
+		cleanup() {
+			clearPendingAiTurn();
+			clearPendingTurnTransition();
+			clearPendingEndRedirect();
+		},
+	};
 }

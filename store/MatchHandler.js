@@ -34,7 +34,7 @@ export default class MatchHandler {
 		return Boolean(match && match.phase !== 'setup' && match.status !== 'finished');
 	}
 
-	createBaseMatch(principalPlayer, guestName = '') {
+	createBaseMatch(principalPlayer, guestName = '', options = {}) {
 		const match = new MatchState({
 			phase: 'team-main',
 			status: 'setup',
@@ -49,6 +49,7 @@ export default class MatchHandler {
 			guest: {
 				name: String(guestName).trim(),
 				avatar: '',
+				isAi: Boolean(options.guestIsAi),
 				team: [],
 				hits: [],
 				guesses: [],

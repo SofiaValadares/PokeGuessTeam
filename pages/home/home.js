@@ -1,6 +1,7 @@
 import PlayerHandler from '../../store/PlayerHandler.js';
 import HistoryHander from '../../store/HistoryHander.js';
 import MatchHandler from '../../store/MatchHandler.js';
+import { AI_DEFAULT_NAME } from '../../config/aiOpponent.js';
 import { setupHistoryPanel } from './componentes/historyPanel/historyPanel.js';
 import { setupControlSide } from './componentes/controlSide/controlSide.js';
 
@@ -83,6 +84,12 @@ export async function initHomePage(pokedexElement, routeContext = {}) {
 			matchHandler.createBaseMatch(player, guestName);
 			routeContext.refreshNavigation?.();
 			routeContext.navigateTo?.('team-main', [player.name, guestName]);
+		},
+		onStartAIMatch: () => {
+			matchHandler.clearMatch();
+			matchHandler.createBaseMatch(player, AI_DEFAULT_NAME, { guestIsAi: true });
+			routeContext.refreshNavigation?.();
+			routeContext.navigateTo?.('team-main', [player.name, AI_DEFAULT_NAME]);
 		},
 	});
 

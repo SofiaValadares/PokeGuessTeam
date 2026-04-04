@@ -1,4 +1,5 @@
 import { pokemonData, getPokemonByName } from '../../config/pokemonData.js';
+import { AI_DEFAULT_NAME, buildAiTeam } from '../../config/aiOpponent.js';
 import { getGuestSpriteByPlayerPath } from '../../enums/PlayerSpriteEnum.js';
 import MatchHandler from '../../store/MatchHandler.js';
 import { setupPokemonList } from '../../components/pokemonList/pokemonList.js';
@@ -61,6 +62,7 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 	}
 
 	const isPrincipalStep = routeContext.route === 'team-main';
+	const isAiMatch = Boolean(match?.guest?.isAi);
 	const [principalNameFromPath = player.name, guestNameFromPath = ''] = routeContext.pathSegments ?? [];
 	const headerTitle = pokedexElement.querySelector('.pokedex-header-title');
 	const leftScreen = pokedexElement.querySelector('.pokedex-screen-left');
@@ -136,7 +138,9 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 		avatar: isPrincipalStep ? player.avatar : guestSprite.path,
 		avatarAlt: isPrincipalStep ? `Avatar de ${principalName}` : 'Avatar do jogador convidado',
 		name: isPrincipalStep ? principalName : (guestName || 'Convidado'),
-		subtitle: isPrincipalStep ? 'Escolha 6 pokémon para avançar.' : 'O sprite do convidado é definido automaticamente pelo sprite principal.',
+		subtitle: isPrincipalStep
+			? (isAiMatch ? 'Escolha 6 pokémon. A IA montará o próprio time automaticamente.' : 'Escolha 6 pokémon para avançar.')
+			: 'O sprite do convidado é definido automaticamente pelo sprite principal.',
 		showGuestNameField: false,
 		guestName,
 		primaryButtonLabel: isPrincipalStep ? 'Próximo' : 'Iniciar partida',
@@ -216,6 +220,20 @@ export async function initTeamSelectionPage(pokedexElement, routeContext = {}) {
 		if (isPrincipalStep) {
 			guestName = resolveGuestName(guestName, match.guest.name, guestNameFromPath);
 			match.setPrincipalTeam(selectedNames);
+
+			if (isAiMatch) {
+				match.setGuestData({
+					name: guestName || AI_DEFAULT_NAME,
+					avatar: guestSprite.path,
+					team: buildAiTeam(selectedNames),
+					isAi: true,
+				});
+				matchHandler.saveMatch(match);
+				routeContext.refreshNavigation?.();
+				routeContext.navigateTo?.('game', buildRouteSegments(principalName, guestName || AI_DEFAULT_NAME));
+				return;
+			}
+
 			match.guest.name = guestName;
 			matchHandler.saveMatch(match);
 			routeContext.navigateTo?.('team-guest', buildRouteSegments(principalName, guestName));
