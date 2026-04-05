@@ -280,10 +280,6 @@ export async function initGamePage(pokedexElement, routeContext = {}) {
 
 		const guessedNames = getPlayerGuessedNames(playerKey);
 
-		if (isAiMatch && playerKey === 'principal') {
-			getPlayerGuessedNames('guest').forEach(name => guessedNames.add(name));
-		}
-
 		guessBoardController.setGuessOptions(
 			pokemonData
 				.filter(pokemon => !guessedNames.has(pokemon.name.toLowerCase()))
