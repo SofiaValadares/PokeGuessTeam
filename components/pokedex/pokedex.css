@@ -397,8 +397,8 @@
         flex: none;
         max-height: none;
         min-height: 0;
-    }
-
+            gap: 7px;
+            border-radius: 16px;
     .pokedex-button-area {
         justify-content: center;
     }

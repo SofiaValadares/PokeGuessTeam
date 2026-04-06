@@ -185,12 +185,12 @@
 }
 
 .team-sidebar-team__item-image {
-	width: 46px;
-	height: 46px;
+	width: 24px;
+	height: 24px;
 	object-fit: contain;
 	image-rendering: pixelated;
-	padding: 4px;
-	border-radius: 12px;
+	padding: 2px;
+	border-radius: 6px;
 	background: #ffffff;
 	border: 1px solid #e2e8f0;
 	flex-shrink: 0;

@@ -52,8 +52,8 @@
 }
 
 .game-player-card__top img {
-    width: 46px;
-    height: 46px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
     image-rendering: pixelated;
     background: #f8fafc;
@@ -111,7 +111,9 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
-    gap: 10px;
+    gap: 7px;
+    max-height: 160px;
+    overflow-y: auto;
 }
 
 .game-hit-list {
@@ -142,8 +144,8 @@
 }
 
 .game-hit-slot img {
-    width: 58px;
-    height: 58px;
+    width: 36px;
+    height: 36px;
     object-fit: contain;
     image-rendering: pixelated;
 }
